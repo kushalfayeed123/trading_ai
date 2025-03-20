@@ -182,8 +182,8 @@ class DerivTradingBot:
         # Capital & Risk Management
         self.capital = None  # Capital will be fetched dynamically from the API
         self.fixed_stake = None  # Fixed stake will be computed dynamically
-        self.min_stake = 0.35  # Minimum stake in USD
-        self.max_stake = 0.50   # Maximum stake in USD
+        self.min_stake = 0.50  # Minimum stake in USD
+        self.max_stake = 0.60   # Maximum stake in USD
 
         # Hysteresis to avoid rapid alternating trades
         self.current_position = None  # 1 for CALL, 0 for PUT
