@@ -1,0 +1,13 @@
+websocket-client
+joblib
+requests
+textblob
+pandas
+numpy
+yfinance
+ta
+scikit-learn
+python_deriv_api
+Flask
+flask-cors
+nest_asyncio
