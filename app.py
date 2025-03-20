@@ -176,7 +176,6 @@ class DerivTradingBot:
         self.training_symbol = training_symbol
         self.contract_duration = contract_duration
         self.api = None
-        self.ml_model = SGDClassifier(loss="log_loss", max_iter=1000, tol=1e-3)
         self.logger = logger  # Global logger
 
         # Capital & Risk Management
@@ -191,7 +190,7 @@ class DerivTradingBot:
 
         # Training warmup variables
         self.training_iterations = 0
-        self.MIN_TRAINING_CYCLES = 5
+        self.MIN_TRAINING_CYCLES = 20
 
         # For feature scaling
         self.scaler = None
@@ -210,6 +209,9 @@ class DerivTradingBot:
         self.cumulative_pnl = 0.0
         self.consecutive_loss_count = 0
         self.trade_history = []
+        self.last_trade_record = None  # to store the record for the most recent trade cycle
+        self.ml_model = SGDClassifier(loss="log_loss", max_iter=1000, tol=1e-3, alpha=0.001)
+
 
 
 
@@ -464,6 +466,10 @@ class DerivTradingBot:
                 self.consecutive_loss_count += 1
             else:
                 self.consecutive_loss_count = 0
+                
+            # Update the last trade record with profit for later win-rate checks.
+            if self.last_trade_record is not None:
+                self.last_trade_record["profit"] = trade_profit
 
             if self.last_trade_state is not None and self.last_trade_action is not None:
                 new_label = self.last_trade_action if trade_profit >= 0 else 1 - self.last_trade_action
@@ -526,6 +532,15 @@ class DerivTradingBot:
         self.current_position = prediction
         cycle_record["note"] = "Trade executed."
         self.trade_history.append(cycle_record)
+        
+        # --- Win-rate check: if last 20 trades have less than 50% wins, pause trading for 30 minutes ---
+        if len(self.trade_history) >= 20:
+            recent = self.trade_history[-20:]
+            wins = sum(1 for rec in recent if rec.get("profit", 0) is not None and rec["profit"] > 0)
+            win_rate = wins / 10.0
+            if win_rate < 0.5:
+                self.logger.warning("Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
+                await asyncio.sleep(1800)
 
 
     def adjust_confidence(self):
@@ -541,13 +556,11 @@ class DerivTradingBot:
         await self.authorize_api()
         asyncio.create_task(self.training_loop())
         while True:
-            # Check if model has warmed up
             if self.training_iterations < self.MIN_TRAINING_CYCLES:
                 self.logger.info("Model warming up. Waiting for sufficient training iterations before trading...")
                 await asyncio.sleep(60)
                 continue
 
-            # Global check: if consecutive losses exceed threshold, pause trading.
             if self.consecutive_loss_count >= 10:
                 self.logger.warning("Consecutive loss count exceeded threshold (>=10). Pausing trading for 1 hour.")
                 await asyncio.sleep(3600)
@@ -566,7 +579,6 @@ class DerivTradingBot:
                 self.logger.error(f"Error during trade cycle: {e}")
             self.logger.info("Trade cycle complete.")
 
-            # Dynamic wait time based on volatility
             df_latest = await self.fetch_historical_data(count=100, granularity=60)
             if df_latest is not None and not df_latest.empty:
                 df_latest = self.preprocess_data(df_latest)
@@ -579,6 +591,7 @@ class DerivTradingBot:
                 wait_time = 60
             self.logger.info(f"Waiting {wait_time/60:.1f} minutes before next trade.")
             await asyncio.sleep(wait_time)
+
 
 # ------------------------------
 # Main Execution: Start Flask and Trading Bot
