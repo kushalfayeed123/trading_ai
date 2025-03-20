@@ -180,10 +180,10 @@ class DerivTradingBot:
         self.logger = logger  # Global logger
 
         # Capital & Risk Management
-        self.capital = 18.70  # Starting capital in USDT
-        self.fixed_stake = self.capital * 0.01  # 1% per trade (~$0.18 USDT)
-        self.min_stake = 1.0  # Minimum stake (e.g., 1 USDT)
-        self.max_stake = 20.0  # Maximum stake per trade
+        self.capital = None  # Capital will be fetched dynamically from the API
+        self.fixed_stake = None  # Fixed stake will be computed dynamically
+        self.min_stake = 0.35  # Minimum stake in USD
+        self.max_stake = 1.0   # Maximum stake in USD
 
         # Hysteresis to avoid rapid alternating trades
         self.current_position = None  # 1 for CALL, 0 for PUT
