@@ -9,7 +9,7 @@ import yfinance as yf
 import ta
 from ta.trend import ADXIndicator, MACD
 from ta.momentum import StochasticOscillator, RSIIndicator, ROCIndicator
-from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import PassiveAggressiveClassifier  # Changed ML model
 from sklearn.preprocessing import StandardScaler
 from deriv_api import DerivAPI  # Ensure you have the latest Deriv API package
 from datetime import datetime
@@ -106,16 +106,20 @@ def market_data():
                     "granularity": 60,
                     "style": "candles"
                 }
-                response = await bot_instance.api.send(req)
-                if "candles" not in response:
-                    raise Exception("Candles not in response")
-                data = response["candles"]
-                df = pd.DataFrame(data)
-                if df.empty:
-                    raise Exception("Empty DataFrame returned from Deriv API")
-                df["Datetime"] = pd.to_datetime(df["epoch"], unit="s")
-                df.drop(columns=["epoch"], inplace=True)
-                return df
+                try:
+                    response = await bot_instance.api.send(req)
+                    if "candles" not in response:
+                        raise Exception("Candles not in response")
+                    data = response["candles"]
+                    df = pd.DataFrame(data)
+                    if df.empty:
+                        raise Exception("Empty DataFrame returned from Deriv API")
+                    df["Datetime"] = pd.to_datetime(df["epoch"], unit="s")
+                    df.drop(columns=["epoch"], inplace=True)
+                    return df
+                except Exception as e:
+                    logger.error(f"Error fetching boom/crash data: {e}")
+                    raise
             future = asyncio.run_coroutine_threadsafe(fetch_data(), bot_instance.loop)
             df = future.result(timeout=10)
         else:
@@ -210,10 +214,12 @@ class DerivTradingBot:
         self.consecutive_loss_count = 0
         self.trade_history = []
         self.last_trade_record = None  # to store the record for the most recent trade cycle
-        self.ml_model = SGDClassifier(loss="log_loss", max_iter=1000, tol=1e-3, alpha=0.001)
-
-
-
+        
+        # ------------------------------
+        # Robust ML model: PassiveAggressiveClassifier for online learning
+        # ------------------------------
+        self.ml_model = PassiveAggressiveClassifier(max_iter=1000, tol=1e-3, C=1.0)
+        
 
     def connect_api(self):
         try:
@@ -253,22 +259,32 @@ class DerivTradingBot:
 
     async def fetch_historical_data(self, count=100, granularity=60):
         try:
-            req = {
-                "ticks_history": self.training_symbol,
-                "count": count,
-                "end": "latest",
-                "granularity": granularity,
-                "style": "candles"
-            }
-            response = await self.api.send(req)
-            if "candles" not in response:
-                return None
-            df = pd.DataFrame(response["candles"])
-            df["Datetime"] = pd.to_datetime(df["epoch"], unit="s")
-            df.drop(columns=["epoch"], inplace=True)
+            # For boom/crash indices, use the Deriv API instead of yfinance
+            if self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
+                req = {
+                    "ticks_history": self.training_symbol.upper(),
+                    "count": count,
+                    "end": "latest",
+                    "granularity": granularity,
+                    "style": "candles"
+                }
+                response = await self.api.send(req)
+                if "candles" not in response:
+                    raise Exception("Candles not in response")
+                df = pd.DataFrame(response["candles"])
+                if df.empty:
+                    raise Exception("Empty DataFrame returned from Deriv API")
+                df["Datetime"] = pd.to_datetime(df["epoch"], unit="s")
+                df.drop(columns=["epoch"], inplace=True)
+            else:
+                # Use yfinance for other symbols
+                symbol = self.training_symbol
+                if symbol.lower().startswith("frx"):
+                    symbol = symbol[3:] + "=X"
+                df = yf.download(symbol, period="1d", interval=f"1m", auto_adjust=True)
             return df
         except Exception as e:
-            self.logger.error(f"Error fetching live data: {e}")
+            self.logger.error(f"Error fetching historical data: {e}")
             return None
 
     def add_regime_features(self, df):
@@ -361,7 +377,7 @@ class DerivTradingBot:
             if self.training_symbol.lower().startswith("frx"):
                 self.vol_threshold = max(0.008, min(0.015, computed_vol_ratio * 1.0))
                 self.confidence_threshold = 0.55
-            elif self.training_symbol.lower() in ["boom1000", "crash1000"]:
+            elif self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
                 self.vol_threshold = max(0.015, min(0.03, computed_vol_ratio * 1.5))
                 self.confidence_threshold = 0.45
             else:
@@ -387,23 +403,29 @@ class DerivTradingBot:
                     scaler = StandardScaler()
                     X_train_scaled = scaler.fit_transform(X_train)
                     self.scaler = scaler
-                    if not hasattr(self.ml_model, "classes_"):
-                        self.logger.info("Initializing online model with partial_fit using scaled features.")
-                        self.ml_model.partial_fit(X_train_scaled, y_train, classes=[0, 1])
-                    else:
-                        self.logger.info("Updating online model with new data using partial_fit on scaled features.")
-                        self.ml_model.partial_fit(X_train_scaled, y_train)
-                    self.training_iterations += 1
-                    self.logger.info(f"Training iteration: {self.training_iterations}")
+                    try:
+                        if not hasattr(self.ml_model, "classes_"):
+                            self.logger.info("Initializing online model with partial_fit using scaled features.")
+                            self.ml_model.partial_fit(X_train_scaled, y_train, classes=[0, 1])
+                        else:
+                            self.logger.info("Updating online model with new data using partial_fit on scaled features.")
+                            self.ml_model.partial_fit(X_train_scaled, y_train)
+                        self.training_iterations += 1
+                        self.logger.info(f"Training iteration: {self.training_iterations}")
+                    except Exception as e:
+                        self.logger.error(f"Error during model update: {e}")
             else:
                 self.logger.error("Failed to fetch training data for model update.")
             
             if self.experience_buffer:
-                X_exp = np.vstack([exp[0] for exp in self.experience_buffer])
-                y_exp = np.array([exp[1] for exp in self.experience_buffer])
-                self.logger.info(f"Updating model with {len(y_exp)} live trade experiences.")
-                self.ml_model.partial_fit(X_exp, y_exp)
-                self.experience_buffer.clear()
+                try:
+                    X_exp = np.vstack([exp[0] for exp in self.experience_buffer])
+                    y_exp = np.array([exp[1] for exp in self.experience_buffer])
+                    self.logger.info(f"Updating model with {len(y_exp)} live trade experiences.")
+                    self.ml_model.partial_fit(X_exp, y_exp)
+                    self.experience_buffer.clear()
+                except Exception as e:
+                    self.logger.error(f"Error updating model with live experiences: {e}")
             
             await asyncio.sleep(self.retrain_freq)
 
@@ -423,7 +445,11 @@ class DerivTradingBot:
         if self.scaler is None:
             self.logger.warning("Scaler not available. Skipping trade.")
             return
-        latest_features_scaled = self.scaler.transform(latest_features)
+        try:
+            latest_features_scaled = self.scaler.transform(latest_features)
+        except Exception as e:
+            self.logger.error(f"Error scaling features: {e}")
+            return
         self.last_trade_state = latest_features_scaled
         self.last_trade_action = prediction
 
@@ -513,9 +539,23 @@ class DerivTradingBot:
             return
         
         latest_features = df_latest.iloc[-1:][FEATURE_COLS]
-        latest_features_scaled = self.scaler.transform(latest_features)
-        prediction = self.ml_model.predict(latest_features_scaled)[0]
-        confidence = self.ml_model.predict_proba(latest_features_scaled)[0][prediction]
+        try:
+            latest_features_scaled = self.scaler.transform(latest_features)
+        except Exception as e:
+            cycle_record["decision"] = "SKIP"
+            cycle_record["note"] = f"Error scaling features: {e}"
+            self.trade_history.append(cycle_record)
+            self.logger.error(f"Error scaling features during evaluation: {e}")
+            return
+        try:
+            prediction = self.ml_model.predict(latest_features_scaled)[0]
+            confidence = self.ml_model.predict_proba(latest_features_scaled)[0][prediction]
+        except Exception as e:
+            cycle_record["decision"] = "SKIP"
+            cycle_record["note"] = f"Error during prediction: {e}"
+            self.trade_history.append(cycle_record)
+            self.logger.error(f"Error during model prediction: {e}")
+            return
         
         cycle_record["confidence"] = confidence
         cycle_record["decision"] = "CALL" if prediction == 1 else "PUT"
@@ -537,11 +577,10 @@ class DerivTradingBot:
         if len(self.trade_history) >= 20:
             recent = self.trade_history[-20:]
             wins = sum(1 for rec in recent if rec.get("profit", 0) is not None and rec["profit"] > 0)
-            win_rate = wins / 10.0
+            win_rate = wins / 20.0
             if win_rate < 0.5:
                 self.logger.warning("Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
                 await asyncio.sleep(1800)
-
 
     def adjust_confidence(self):
         import random
