@@ -565,6 +565,15 @@ class DerivTradingBot:
     # ------------------------------
     # Place Trade: Execute the Trade via API
     # ------------------------------
+    async def get_account_currency(self):
+        try:
+            response = await self.api.send({"balance": 1})
+            if "balance" in response:
+                return response["balance"].get("currency", "USD")  # Default to USD if not found
+        except Exception as e:
+            self.logger.error(f"Error fetching account currency: {e}")
+        return "USD"  # Fallback
+
     async def place_trade(self, prediction, confidence, stake):
         decision = "CALL" if prediction == 1 else "PUT"
         df_latest = await self.fetch_historical_data(count=100, granularity=60)
@@ -588,6 +597,8 @@ class DerivTradingBot:
             return
         self.last_trade_state = latest_features_scaled
         self.last_trade_action = prediction
+        currency = await self.get_account_currency()
+
 
         self.logger.info(
             f"Placing {decision} trade with {stake:.2f} USDT stake (Confidence: {confidence:.2f}).")
@@ -595,7 +606,7 @@ class DerivTradingBot:
             "amount": stake,
             "basis": "stake",
             "contract_type": decision,
-            "currency": "USD",
+            "currency": currency,
             "duration": self.contract_duration,
             "duration_unit": "m",
             "symbol": self.training_symbol
