@@ -10793,3 +10793,36 @@
 2025-03-21 14:07:34,746 - INFO - Trading disabled; idling...
 2025-03-21 14:07:35,752 - INFO - Trading disabled; idling...
 2025-03-21 14:07:36,756 - INFO - Trading disabled; idling...
+2025-03-21 19:25:58,160 - INFO - Connecting to Deriv API...
+2025-03-21 19:25:58,166 - ERROR - Error connecting to API: ConstructionError:An app_id is required to connect to the API
+2025-03-21 19:26:06,774 - INFO - Connecting to Deriv API...
+2025-03-21 19:26:11,466 - INFO - API authorized successfully.
+2025-03-21 19:26:11,749 - INFO - Updated balance: 9983.63 USDT; Fixed stake: 99.84 USDT
+2025-03-21 19:26:11,749 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-21 19:26:13,728 - INFO - Added market regime features.
+2025-03-21 19:26:17,474 - INFO - Market sentiment added: -0.38
+2025-03-21 19:26:17,481 - INFO - Data preprocessing complete with enhanced features.
+2025-03-21 19:26:17,481 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-21 19:26:17,490 - INFO - Initializing online model with partial_fit using scaled features.
+2025-03-21 19:26:17,506 - INFO - Training iteration: 1
+2025-03-21 19:27:11,730 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-21 19:27:17,903 - INFO - Added market regime features.
+2025-03-21 19:27:18,619 - INFO - Market sentiment added: -0.38
+2025-03-21 19:27:18,627 - INFO - Data preprocessing complete with enhanced features.
+2025-03-21 19:27:18,635 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-21 19:27:18,643 - INFO - Updating online model with new data using partial_fit on scaled features.
+2025-03-21 19:27:18,643 - INFO - Training iteration: 2
+2025-03-21 19:28:11,726 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-21 19:28:19,060 - INFO - Added market regime features.
+2025-03-21 19:28:19,826 - INFO - Market sentiment added: -0.38
+2025-03-21 19:28:19,834 - INFO - Data preprocessing complete with enhanced features.
+2025-03-21 19:28:19,842 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-21 19:28:19,855 - INFO - Updating online model with new data using partial_fit on scaled features.
+2025-03-21 19:28:19,855 - INFO - Training iteration: 3
+2025-03-21 19:29:11,728 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-21 19:29:20,258 - INFO - Added market regime features.
+2025-03-21 19:29:21,026 - INFO - Market sentiment added: -0.38
+2025-03-21 19:29:21,027 - INFO - Data preprocessing complete with enhanced features.
+2025-03-21 19:29:21,038 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-21 19:29:21,047 - INFO - Updating online model with new data using partial_fit on scaled features.
+2025-03-21 19:29:21,047 - INFO - Training iteration: 4
