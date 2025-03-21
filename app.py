@@ -9,7 +9,7 @@ import yfinance as yf
 import ta
 from ta.trend import ADXIndicator, MACD
 from ta.momentum import StochasticOscillator, RSIIndicator, ROCIndicator
-from sklearn.linear_model import PassiveAggressiveClassifier  # Changed ML model
+from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.preprocessing import StandardScaler
 from deriv_api import DerivAPI  # Ensure you have the latest Deriv API package
 from datetime import datetime
@@ -17,14 +17,50 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import nest_asyncio
 import threading
+import requests
 
 nest_asyncio.apply()
 
-trading_enabled = False
-notification_msg = ""
+# ------------------------------
+# Global Definitions
+# ------------------------------
+FEATURE_COLS = [
+    'rsi', 'macd', 'macd_hist', 'bollinger_hband', 'bollinger_lband',
+    'atr', 'adx', 'ma_20', 'std_20', 'volatility_ratio', 'sentiment',
+    'stoch_k', 'stoch_d', 'rsi_diff', 'roc', 'ma_diff', 'regime'
+]
+
+def safe_indicator_output(ind_val, index):
+    try:
+        arr = np.array(ind_val).flatten()
+        if len(arr) == 0:
+            return pd.Series(np.zeros(len(index)), index=index)
+        return pd.Series(arr, index=index[-len(arr):])
+    except Exception as e:
+        logger.error(f"safe_indicator_output error: {e}")
+        return pd.Series(np.zeros(len(index)), index=index)
+
+def fetch_market_sentiment():
+    """
+    Fetch a market sentiment score from an external API.
+    This example uses Alternative.me's Fear & Greed Index.
+    Returns a normalized sentiment between -1 (extreme fear) and 1 (extreme greed).
+    """
+    try:
+        response = requests.get("https://api.alternative.me/fng/?limit=1")
+        if response.status_code == 200:
+            data = response.json()
+            if data and "data" in data and len(data["data"]) > 0:
+                sentiment_value = float(data["data"][0]["value"])  # 0 to 100
+                normalized = (sentiment_value - 50) / 50.0
+                return normalized
+        return 0.0
+    except Exception as e:
+        logger.error(f"Error fetching market sentiment: {e}")
+        return 0.0
 
 # ------------------------------
-# Logging configuration
+# Logger Setup
 # ------------------------------
 def setup_logger(name: str, log_file: str, level=logging.DEBUG):
     logger = logging.getLogger(name)
@@ -151,26 +187,6 @@ def notification():
     return jsonify({"notification": notification_msg})
 
 # ------------------------------
-# Utility Function
-# ------------------------------
-def safe_indicator_output(ind_val, index):
-    try:
-        arr = np.array(ind_val).flatten()
-        if len(arr) == 0:
-            return pd.Series(np.zeros(len(index)), index=index)
-        return pd.Series(arr, index=index[-len(arr):])
-    except Exception as e:
-        logger.error(f"safe_indicator_output error: {e}")
-        return pd.Series(np.zeros(len(index)), index=index)
-
-# ------------------------------
-# Feature Columns Definition (for ML model)
-# ------------------------------
-FEATURE_COLS = ['rsi', 'macd', 'macd_hist', 'bollinger_hband', 'bollinger_lband',
-                'atr', 'adx', 'ma_20', 'std_20', 'volatility_ratio', 'sentiment',
-                'stoch_k', 'stoch_d', 'rsi_diff', 'roc', 'ma_diff', 'regime']
-
-# ------------------------------
 # Trading Bot Class with Enhancements
 # ------------------------------
 class DerivTradingBot:
@@ -180,13 +196,13 @@ class DerivTradingBot:
         self.training_symbol = training_symbol
         self.contract_duration = contract_duration
         self.api = None
-        self.logger = logger  # Global logger
+        self.logger = logger
 
         # Capital & Risk Management
-        self.capital = None  # Capital will be fetched dynamically from the API
-        self.fixed_stake = None  # Fixed stake will be computed dynamically
-        self.min_stake = 0.50  # Minimum stake in USD
-        self.max_stake = 1   # Maximum stake in USD
+        self.capital = None
+        self.fixed_stake = None
+        self.min_stake = 0.50
+        self.max_stake = 1
 
         # Hysteresis to avoid rapid alternating trades
         self.current_position = None  # 1 for CALL, 0 for PUT
@@ -206,87 +222,21 @@ class DerivTradingBot:
 
         # Define training window and retrain frequency
         self.train_window = 1000
-        self.retrain_freq = 60  # in seconds
+        self.retrain_freq = 60  # seconds
 
         # Tracking trade cycles and cumulative PnL for status reporting
         self.cycle_count = 0
         self.cumulative_pnl = 0.0
         self.consecutive_loss_count = 0
         self.trade_history = []
-        self.last_trade_record = None  # to store the record for the most recent trade cycle
-        
-        # ------------------------------
+        self.last_trade_record = None
+
         # Robust ML model: PassiveAggressiveClassifier for online learning
-        # ------------------------------
         self.ml_model = PassiveAggressiveClassifier(max_iter=1000, tol=1e-3, C=1.0)
-        
 
-    def connect_api(self):
-        try:
-            self.logger.info("Connecting to Deriv API...")
-            self.api = DerivAPI(api_token=self.api_token, app_id=self.app_id)
-        except Exception as e:
-            self.logger.error(f"Error connecting to API: {e}")
-            raise
-
-    async def authorize_api(self):
-        try:
-            auth_msg = {"authorize": self.api_token}
-            auth_response = await self.api.send(auth_msg)
-            if auth_response.get("error"):
-                self.logger.error(f"Authorization failed: {auth_response['error']}")
-                raise Exception("Authorization failed")
-            self.logger.info("API authorized successfully.")
-            await self.update_balance()
-        except Exception as e:
-            self.logger.error(f"Error during API authorization: {e}")
-            raise
-
-    async def update_balance(self):
-        try:
-            balance_response = await self.api.send({"balance": 1})
-            if "balance" in balance_response:
-                new_balance = float(balance_response["balance"]["balance"])
-                self.capital = new_balance
-                self.fixed_stake = self.capital * 0.01
-                self.logger.info(f"Updated balance: {self.capital:.2f} USDT; Fixed stake: {self.fixed_stake:.2f} USDT")
-            else:
-                self.logger.warning("Balance information not found in response.")
-        except Exception as e:
-            self.logger.error(f"Error updating balance: {e}")
-            self.capital = 18.70
-            self.fixed_stake = self.capital * 0.01
-
-    async def fetch_historical_data(self, count=100, granularity=60):
-        try:
-            # For boom/crash indices, use the Deriv API instead of yfinance
-            if self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
-                req = {
-                    "ticks_history": self.training_symbol.upper(),
-                    "count": count,
-                    "end": "latest",
-                    "granularity": granularity,
-                    "style": "candles"
-                }
-                response = await self.api.send(req)
-                if "candles" not in response:
-                    raise Exception("Candles not in response")
-                df = pd.DataFrame(response["candles"])
-                if df.empty:
-                    raise Exception("Empty DataFrame returned from Deriv API")
-                df["Datetime"] = pd.to_datetime(df["epoch"], unit="s")
-                df.drop(columns=["epoch"], inplace=True)
-            else:
-                # Use yfinance for other symbols
-                symbol = self.training_symbol
-                if symbol.lower().startswith("frx"):
-                    symbol = symbol[3:] + "=X"
-                df = yf.download(symbol, period="1d", interval=f"1m", auto_adjust=True)
-            return df
-        except Exception as e:
-            self.logger.error(f"Error fetching historical data: {e}")
-            return None
-
+    # ------------------------------
+    # Add Regime Feature
+    # ------------------------------
     def add_regime_features(self, df):
         try:
             df['long_ma'] = df['close'].rolling(window=200, min_periods=50).mean()
@@ -297,6 +247,9 @@ class DerivTradingBot:
             self.logger.error(f"Error adding regime features: {e}")
             return df
 
+    # ------------------------------
+    # Preprocess Data as a Class Method
+    # ------------------------------
     def preprocess_data(self, df):
         try:
             df.columns = [('_'.join(map(str, col)) if isinstance(col, tuple) else str(col)).lower().rstrip('_') for col in df.columns]
@@ -356,8 +309,10 @@ class DerivTradingBot:
             adx_raw = adx_obj.adx()
             adx_values = safe_indicator_output(adx_raw, df.index)
             df['adx'] = adx_values
-            df['sentiment'] = 0.1
+            # Add regime feature
             df = self.add_regime_features(df)
+            # Incorporate additional features (e.g., market sentiment)
+            df = self.get_additional_features(df)
             df.dropna(inplace=True)
             df['future_return'] = df['close'].shift(-1) - df['close']
             df['direction'] = np.where(df['future_return'] > (0.0001 * df['close']), 1,
@@ -369,27 +324,23 @@ class DerivTradingBot:
             self.logger.error(f"Error in data preprocessing: {e}")
             return None
 
-    def calibrate_asset_parameters(self, df):
+    # ------------------------------
+    # Additional Features: Market Sentiment Integration
+    # ------------------------------
+    def get_additional_features(self, df):
         try:
-            avg_atr = df['atr'].mean()
-            avg_price = df['close'].mean()
-            computed_vol_ratio = avg_atr / avg_price if avg_price != 0 else 0.01
-            if self.training_symbol.lower().startswith("frx"):
-                self.vol_threshold = max(0.008, min(0.015, computed_vol_ratio * 1.0))
-                self.confidence_threshold = 0.55
-            elif self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
-                self.vol_threshold = max(0.015, min(0.03, computed_vol_ratio * 1.5))
-                self.confidence_threshold = 0.45
-            else:
-                self.vol_threshold = computed_vol_ratio * 1.0
-                self.confidence_threshold = 0.55
-            self.logger.info(f"Calibrated parameters for {self.training_symbol}: vol_threshold={self.vol_threshold:.3f}, confidence_threshold={self.confidence_threshold:.2f}")
+            sentiment = fetch_market_sentiment()
+            df['sentiment'] = sentiment
+            self.logger.info(f"Market sentiment added: {sentiment:.2f}")
+            return df
         except Exception as e:
-            self.logger.error(f"Error calibrating asset parameters: {e}")
+            self.logger.error(f"Error adding additional features: {e}")
+            return df
 
+    # ------------------------------
+    # Training Loop: Model Updating with Experience Replay
+    # ------------------------------
     async def training_loop(self):
-        """Continuously update the ML model using incremental learning on a sliding window of recent data,
-           and incorporate experiences from live trades."""
         while True:
             df_train = await self.fetch_historical_data(count=self.train_window, granularity=60)
             if df_train is not None and not df_train.empty:
@@ -429,10 +380,124 @@ class DerivTradingBot:
             
             await asyncio.sleep(self.retrain_freq)
 
-    async def place_trade(self, prediction, confidence):
-        """Executes a trade based on ML prediction and confidence checks."""
+    # ------------------------------
+    # Risk Calibration (e.g., volatility-based thresholds)
+    # ------------------------------
+    def calibrate_asset_parameters(self, df):
+        try:
+            avg_atr = df['atr'].mean()
+            avg_price = df['close'].mean()
+            computed_vol_ratio = avg_atr / avg_price if avg_price != 0 else 0.01
+            if self.training_symbol.lower().startswith("frx"):
+                self.vol_threshold = max(0.008, min(0.015, computed_vol_ratio * 1.0))
+                self.confidence_threshold = 0.55
+            elif self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
+                self.vol_threshold = max(0.015, min(0.03, computed_vol_ratio * 1.5))
+                self.confidence_threshold = 0.45
+            else:
+                self.vol_threshold = computed_vol_ratio * 1.0
+                self.confidence_threshold = 0.55
+            self.logger.info(f"Calibrated parameters for {self.training_symbol}: vol_threshold={self.vol_threshold:.3f}, confidence_threshold={self.confidence_threshold:.2f}")
+        except Exception as e:
+            self.logger.error(f"Error calibrating asset parameters: {e}")
+
+    # ------------------------------
+    # Evaluate and Trade: Making Predictions and Executing Trades
+    # ------------------------------
+    async def evaluate_and_trade(self):
+        self.cycle_count += 1
+        cycle_record = {
+            "time": datetime.now().isoformat(timespec="seconds"),
+            "cycle": self.cycle_count,
+            "decision": None,
+            "confidence": None,
+            "note": ""
+        }
+        
+        df_latest = await self.fetch_historical_data(count=100, granularity=60)
+        if df_latest is None or df_latest.empty:
+            cycle_record["decision"] = "SKIP"
+            cycle_record["note"] = "No live data available for inference."
+            self.trade_history.append(cycle_record)
+            self.logger.error("No live data available for inference.")
+            return
+        
+        df_latest = self.preprocess_data(df_latest)
+        if df_latest is None or df_latest.empty:
+            cycle_record["decision"] = "SKIP"
+            cycle_record["note"] = "Error preprocessing live data."
+            self.trade_history.append(cycle_record)
+            self.logger.error("Error preprocessing live data.")
+            return
+        
+        self.calibrate_asset_parameters(df_latest)
+        if self.scaler is None:
+            cycle_record["decision"] = "SKIP"
+            cycle_record["note"] = "Scaler not available."
+            self.trade_history.append(cycle_record)
+            self.logger.warning("Scaler not available; skipping trade cycle.")
+            return
+        
+        latest_features = df_latest.iloc[-1:][FEATURE_COLS]
+        try:
+            latest_features_scaled = self.scaler.transform(latest_features)
+        except Exception as e:
+            cycle_record["decision"] = "SKIP"
+            cycle_record["note"] = f"Error scaling features: {e}"
+            self.trade_history.append(cycle_record)
+            self.logger.error(f"Error scaling features during evaluation: {e}")
+            return
+        
+        try:
+            prediction = self.ml_model.predict(latest_features_scaled)[0]
+            decision_score = self.ml_model.decision_function(latest_features_scaled)
+            confidence = abs(decision_score[0])
+        except Exception as e:
+            cycle_record["decision"] = "SKIP"
+            cycle_record["note"] = f"Error during prediction: {e}"
+            self.trade_history.append(cycle_record)
+            self.logger.error(f"Error during model prediction: {e}")
+            return
+        
+        cycle_record["confidence"] = confidence
+        cycle_record["decision"] = "CALL" if prediction == 1 else "PUT"
+        
+        if self.current_position is not None and prediction != self.current_position:
+            if confidence < (self.confidence_threshold + self.hysteresis_margin):
+                cycle_record["note"] = f"Skipped trade: confidence {confidence:.2f} insufficient to switch."
+                self.trade_history.append(cycle_record)
+                self.logger.info(f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
+                return
+        
+        # Dynamic position sizing based on volatility (ATR)
+        try:
+            current_atr = float(df_latest.iloc[-1]["atr"])
+            current_price = float(df_latest.iloc[-1]["close"])
+            volatility_factor = current_atr / current_price
+            adjusted_stake = self.fixed_stake * (0.5 / volatility_factor) if volatility_factor > 0 else self.fixed_stake
+            stake = max(min(adjusted_stake, self.max_stake), self.min_stake)
+        except Exception as e:
+            self.logger.error(f"Error adjusting stake dynamically: {e}")
+            stake = self.fixed_stake
+        
+        await self.place_trade(prediction, confidence, stake)
+        self.current_position = prediction
+        cycle_record["note"] = "Trade executed."
+        self.trade_history.append(cycle_record)
+        
+        if len(self.trade_history) >= 20:
+            recent = self.trade_history[-20:]
+            wins = sum(1 for rec in recent if rec.get("profit", 0) is not None and rec["profit"] > 0)
+            win_rate = wins / 20.0
+            if win_rate < 0.5:
+                self.logger.warning("Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
+                await asyncio.sleep(1800)
+
+    # ------------------------------
+    # Place Trade: Execute the Trade via API
+    # ------------------------------
+    async def place_trade(self, prediction, confidence, stake):
         decision = "CALL" if prediction == 1 else "PUT"
-        stake = max(min(self.fixed_stake, self.max_stake), self.min_stake)
         df_latest = await self.fetch_historical_data(count=100, granularity=60)
         if df_latest is None or df_latest.empty:
             self.logger.error("Unable to fetch latest data for trade decision.")
@@ -479,8 +544,10 @@ class DerivTradingBot:
         contract_id = buy_response.get("contract_id")
         asyncio.create_task(self.check_contract_result(contract_id))
 
+    # ------------------------------
+    # Check Contract Result: Post-Trade Evaluation
+    # ------------------------------
     async def check_contract_result(self, contract_id):
-        """Check trade result after contract duration and store outcome for learning."""
         await asyncio.sleep(self.contract_duration * 60 + 10)
         req = {"proposal_open_contract": contract_id}
         result = await self.api.send(req)
@@ -492,106 +559,18 @@ class DerivTradingBot:
                 self.consecutive_loss_count += 1
             else:
                 self.consecutive_loss_count = 0
-                
-            # Update the last trade record with profit for later win-rate checks.
             if self.last_trade_record is not None:
                 self.last_trade_record["profit"] = trade_profit
-
             if self.last_trade_state is not None and self.last_trade_action is not None:
                 new_label = self.last_trade_action if trade_profit >= 0 else 1 - self.last_trade_action
                 self.experience_buffer.append((self.last_trade_state, new_label))
                 self.last_trade_state = None
                 self.last_trade_action = None
 
-    async def evaluate_and_trade(self):
-        self.cycle_count += 1
-        # Create a record for this trade cycle.
-        cycle_record = {
-            "time": datetime.now().isoformat(timespec="seconds"),
-            "cycle": self.cycle_count,
-            "decision": None,
-            "confidence": None,
-            "note": ""
-        }
-        
-        df_latest = await self.fetch_historical_data(count=100, granularity=60)
-        if df_latest is None or df_latest.empty:
-            cycle_record["decision"] = "SKIP"
-            cycle_record["note"] = "No live data available for inference."
-            self.trade_history.append(cycle_record)
-            self.logger.error("No live data available for inference.")
-            return
-        
-        df_latest = self.preprocess_data(df_latest)
-        if df_latest is None or df_latest.empty:
-            cycle_record["decision"] = "SKIP"
-            cycle_record["note"] = "Error preprocessing live data."
-            self.trade_history.append(cycle_record)
-            self.logger.error("Error preprocessing live data.")
-            return
-        
-        self.calibrate_asset_parameters(df_latest)
-        if self.scaler is None:
-            cycle_record["decision"] = "SKIP"
-            cycle_record["note"] = "Scaler not available."
-            self.trade_history.append(cycle_record)
-            self.logger.warning("Scaler not available; skipping trade cycle.")
-            return
-        
-        latest_features = df_latest.iloc[-1:][FEATURE_COLS]
-        try:
-            latest_features_scaled = self.scaler.transform(latest_features)
-        except Exception as e:
-            cycle_record["decision"] = "SKIP"
-            cycle_record["note"] = f"Error scaling features: {e}"
-            self.trade_history.append(cycle_record)
-            self.logger.error(f"Error scaling features during evaluation: {e}")
-            return
-        try:
-            prediction = self.ml_model.predict(latest_features_scaled)[0]
-            decision_score = self.ml_model.decision_function(latest_features_scaled)
-            confidence = abs(decision_score[0])
-
-        except Exception as e:
-            cycle_record["decision"] = "SKIP"
-            cycle_record["note"] = f"Error during prediction: {e}"
-            self.trade_history.append(cycle_record)
-            self.logger.error(f"Error during model prediction: {e}")
-            return
-        
-        cycle_record["confidence"] = confidence
-        cycle_record["decision"] = "CALL" if prediction == 1 else "PUT"
-        
-        # Hysteresis check: if switching position, require higher confidence.
-        if self.current_position is not None and prediction != self.current_position:
-            if confidence < (self.confidence_threshold + self.hysteresis_margin):
-                cycle_record["note"] = f"Skipped trade: confidence {confidence:.2f} insufficient to switch."
-                self.trade_history.append(cycle_record)
-                self.logger.info(f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
-                return
-
-        await self.place_trade(prediction, confidence)
-        self.current_position = prediction
-        cycle_record["note"] = "Trade executed."
-        self.trade_history.append(cycle_record)
-        
-        # --- Win-rate check: if last 20 trades have less than 50% wins, pause trading for 30 minutes ---
-        if len(self.trade_history) >= 20:
-            recent = self.trade_history[-20:]
-            wins = sum(1 for rec in recent if rec.get("profit", 0) is not None and rec["profit"] > 0)
-            win_rate = wins / 20.0
-            if win_rate < 0.5:
-                self.logger.warning("Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
-                await asyncio.sleep(1800)
-
-    def adjust_confidence(self):
-        import random
-        change = random.uniform(-0.05, 0.05)
-        self.confidence_threshold = max(0.4, min(0.7, self.confidence_threshold + change))
-        self.logger.info(f"Adjusted confidence threshold to: {self.confidence_threshold:.2f}")
-
+    # ------------------------------
+    # Trading Loop: Main Execution Loop
+    # ------------------------------
     async def trading_loop(self):
-        global trading_enabled
         self.loop = asyncio.get_running_loop()
         self.connect_api()
         await self.authorize_api()
@@ -601,25 +580,21 @@ class DerivTradingBot:
                 self.logger.info("Model warming up. Waiting for sufficient training iterations before trading...")
                 await asyncio.sleep(60)
                 continue
-
             if self.consecutive_loss_count >= 10:
                 self.logger.warning("Consecutive loss count exceeded threshold (>=10). Pausing trading for 1 hour.")
                 await asyncio.sleep(3600)
                 self.consecutive_loss_count = 0
                 continue
-
             if not globals().get("trading_enabled", False):
                 self.logger.info("Trading disabled; idling...")
                 await asyncio.sleep(1)
                 continue
-
-            self.logger.info(f"Starting trade cycle #{self.cycle_count + 1} with contract duration {self.contract_duration} minutes on {self.training_symbol}...")
+            self.logger.info(f"Starting trade cycle #{self.cycle_count + 1} on {self.training_symbol}...")
             try:
                 await self.evaluate_and_trade()
             except Exception as e:
                 self.logger.error(f"Error during trade cycle: {e}")
             self.logger.info("Trade cycle complete.")
-
             df_latest = await self.fetch_historical_data(count=100, granularity=60)
             if df_latest is not None and not df_latest.empty:
                 df_latest = self.preprocess_data(df_latest)
@@ -633,6 +608,69 @@ class DerivTradingBot:
             self.logger.info(f"Waiting {wait_time/60:.1f} minutes before next trade.")
             await asyncio.sleep(wait_time)
 
+    async def authorize_api(self):
+        try:
+            auth_msg = {"authorize": self.api_token}
+            auth_response = await self.api.send(auth_msg)
+            if auth_response.get("error"):
+                self.logger.error(f"Authorization failed: {auth_response['error']}")
+                raise Exception("Authorization failed")
+            self.logger.info("API authorized successfully.")
+            await self.update_balance()
+        except Exception as e:
+            self.logger.error(f"Error during API authorization: {e}")
+            raise
+
+    async def update_balance(self):
+        try:
+            balance_response = await self.api.send({"balance": 1})
+            if "balance" in balance_response:
+                new_balance = float(balance_response["balance"]["balance"])
+                self.capital = new_balance
+                self.fixed_stake = self.capital * 0.01
+                self.logger.info(f"Updated balance: {self.capital:.2f} USDT; Fixed stake: {self.fixed_stake:.2f} USDT")
+            else:
+                self.logger.warning("Balance information not found in response.")
+        except Exception as e:
+            self.logger.error(f"Error updating balance: {e}")
+            self.capital = 18.70
+            self.fixed_stake = self.capital * 0.01
+
+    async def fetch_historical_data(self, count=100, granularity=60):
+        try:
+            if self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
+                req = {
+                    "ticks_history": self.training_symbol.upper(),
+                    "count": count,
+                    "end": "latest",
+                    "granularity": granularity,
+                    "style": "candles"
+                }
+                response = await self.api.send(req)
+                if "candles" not in response:
+                    raise Exception("Candles not in response")
+                df = pd.DataFrame(response["candles"])
+                if df.empty:
+                    raise Exception("Empty DataFrame returned from Deriv API")
+                df["Datetime"] = pd.to_datetime(df["epoch"], unit="s")
+                df.drop(columns=["epoch"], inplace=True)
+            else:
+                symbol = self.training_symbol
+                if symbol.lower().startswith("frx"):
+                    symbol = symbol[3:] + "=X"
+                df = yf.download(symbol, period="1d", interval="1m", auto_adjust=True)
+            return df
+        except Exception as e:
+            self.logger.error(f"Error fetching historical data: {e}")
+            return None
+
+    def connect_api(self):
+        try:
+            self.logger.info("Connecting to Deriv API...")
+            self.api = DerivAPI(api_token=self.api_token, app_id=self.app_id)
+        except Exception as e:
+            self.logger.error(f"Error connecting to API: {e}")
+            raise
 
 # ------------------------------
 # Main Execution: Start Flask and Trading Bot
