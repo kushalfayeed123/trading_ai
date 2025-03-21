@@ -11,3 +11,4 @@ python_deriv_api
 Flask
 flask-cors
 nest_asyncio
+dotenv
