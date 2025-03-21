@@ -32,6 +32,8 @@ app_id = os.environ.get("APP_ID")
 trading_enabled = False
 bot_instance = None
 notification_msg = ""
+MIN_CONFIDENCE_THRESHOLD = 0.4 # adjust this value based on backtesting
+
 
 # ------------------------------
 # Global Definitions
@@ -242,7 +244,7 @@ class DerivTradingBot:
 
         # Training warmup variables
         self.training_iterations = 0
-        self.MIN_TRAINING_CYCLES = 20
+        self.MIN_TRAINING_CYCLES = 50
 
         # For feature scaling
         self.scaler = None
@@ -262,6 +264,13 @@ class DerivTradingBot:
         self.consecutive_loss_count = 0
         self.trade_history = []
         self.last_trade_record = None
+        
+        # In your DerivTradingBot __init__, increase MIN_TRAINING_CYCLES:
+
+
+        # Define a minimum acceptable confidence threshold
+
+
 
         # Robust ML model: PassiveAggressiveClassifier for online learning
         self.ml_model = PassiveAggressiveClassifier(
@@ -478,6 +487,14 @@ class DerivTradingBot:
             "note": ""
         }
 
+        # Skip trading if the model hasn't been sufficiently calibrated
+        if self.training_iterations < self.MIN_TRAINING_CYCLES:
+            cycle_record["decision"] = "NEUTRAL"
+            cycle_record["note"] = f"Model not calibrated (iterations: {self.training_iterations}). Skipping trade."
+            self.trade_history.append(cycle_record)
+            self.logger.info("Skipping trade: insufficient training iterations.")
+            return
+
         df_latest = await self.fetch_historical_data(count=100, granularity=60)
         if df_latest is None or df_latest.empty:
             cycle_record["decision"] = "SKIP"
@@ -514,8 +531,7 @@ class DerivTradingBot:
 
         try:
             prediction = self.ml_model.predict(latest_features_scaled)[0]
-            decision_score = self.ml_model.decision_function(
-                latest_features_scaled)
+            decision_score = self.ml_model.decision_function(latest_features_scaled)
             confidence = abs(decision_score[0])
         except Exception as e:
             cycle_record["decision"] = "SKIP"
@@ -527,12 +543,19 @@ class DerivTradingBot:
         cycle_record["confidence"] = confidence
         cycle_record["decision"] = "CALL" if prediction == 1 else "PUT"
 
+        # Additional risk check: if confidence is too low, skip the trade
+        if confidence < MIN_CONFIDENCE_THRESHOLD:
+            cycle_record["note"] = f"Confidence {confidence:.2f} below threshold; trade skipped."
+            self.trade_history.append(cycle_record)
+            self.logger.info(f"Skipping trade: low confidence ({confidence:.2f}).")
+            return
+
+        # Hysteresis check: if switching position, require higher confidence
         if self.current_position is not None and prediction != self.current_position:
             if confidence < (self.confidence_threshold + self.hysteresis_margin):
                 cycle_record["note"] = f"Skipped trade: confidence {confidence:.2f} insufficient to switch."
                 self.trade_history.append(cycle_record)
-                self.logger.info(
-                    f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
+                self.logger.info(f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
                 return
 
         # Dynamic position sizing based on volatility (ATR)
@@ -540,8 +563,7 @@ class DerivTradingBot:
             current_atr = float(df_latest.iloc[-1]["atr"])
             current_price = float(df_latest.iloc[-1]["close"])
             volatility_factor = current_atr / current_price
-            adjusted_stake = self.fixed_stake * \
-                (0.5 / volatility_factor) if volatility_factor > 0 else self.fixed_stake
+            adjusted_stake = self.fixed_stake * (0.5 / volatility_factor) if volatility_factor > 0 else self.fixed_stake
             stake = max(min(adjusted_stake, self.max_stake), self.min_stake)
         except Exception as e:
             self.logger.error(f"Error adjusting stake dynamically: {e}")
@@ -552,14 +574,13 @@ class DerivTradingBot:
         cycle_record["note"] = "Trade executed."
         self.trade_history.append(cycle_record)
 
+        # Check recent win rate; if below acceptable level, pause trading
         if len(self.trade_history) >= 20:
             recent = self.trade_history[-20:]
-            wins = sum(1 for rec in recent if rec.get(
-                "profit", 0) is not None and rec["profit"] > 0)
+            wins = sum(1 for rec in recent if rec.get("profit", 0) is not None and rec["profit"] > 0)
             win_rate = wins / 20.0
             if win_rate < 0.5:
-                self.logger.warning(
-                    "Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
+                self.logger.warning("Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
                 await asyncio.sleep(1800)
 
     # ------------------------------
