@@ -21,6 +21,10 @@ import requests
 
 nest_asyncio.apply()
 
+trading_enabled = False
+bot_instance = None
+notification_msg = ""
+
 # ------------------------------
 # Global Definitions
 # ------------------------------
