@@ -549,7 +549,9 @@ class DerivTradingBot:
             return
         try:
             prediction = self.ml_model.predict(latest_features_scaled)[0]
-            confidence = self.ml_model.predict_proba(latest_features_scaled)[0][prediction]
+            decision_score = self.ml_model.decision_function(latest_features_scaled)
+            confidence = abs(decision_score[0])
+
         except Exception as e:
             cycle_record["decision"] = "SKIP"
             cycle_record["note"] = f"Error during prediction: {e}"
