@@ -32,7 +32,7 @@ app_id = os.environ.get("APP_ID")
 trading_enabled = False
 bot_instance = None
 notification_msg = ""
-MIN_CONFIDENCE_THRESHOLD = 0.4 # adjust this value based on backtesting
+MIN_CONFIDENCE_THRESHOLD = 0.4  # adjust this value based on backtesting
 
 
 # ------------------------------
@@ -157,8 +157,7 @@ def market_data():
     try:
         if symbol.lower().startswith("frx"):
             symbol = symbol[3:] + "=X"
-            df = yf.download(symbol, period="1d",
-                             interval=interval, auto_adjust=True)
+            df = yf.download(symbol, period="1d", interval=interval, auto_adjust=True)
         elif symbol.upper() in ["BOOM1000", "CRASH1000"]:
             async def fetch_data():
                 req = {
@@ -166,36 +165,37 @@ def market_data():
                     "count": 1440,
                     "end": "latest",
                     "granularity": 60,
-                    "style": "candles"
+                    # Omit "style" so the API returns its default tick data
                 }
                 try:
                     response = await bot_instance.api.send(req)
-                    if "candles" not in response:
-                        raise Exception("Candles not in response")
-                    data = response["candles"]
-                    df = pd.DataFrame(data)
-                    if df.empty:
-                        raise Exception(
-                            "Empty DataFrame returned from Deriv API")
-                    df["Datetime"] = pd.to_datetime(df["epoch"], unit="s")
-                    df.drop(columns=["epoch"], inplace=True)
-                    return df
+                    if ("history" in response and 
+                        "prices" in response["history"] and 
+                        "times" in response["history"]):
+                        df = pd.DataFrame({
+                            "Datetime": pd.to_datetime(response["history"]["times"], unit="s"),
+                            "Price": response["history"]["prices"]
+                        })
+                        # Set datetime as index
+                        df.set_index("Datetime", inplace=True)
+                        return df
+                    else:
+                        raise Exception("Expected tick history data not in response")
                 except Exception as e:
                     logger.error(f"Error fetching boom/crash data: {e}")
                     raise
-            future = asyncio.run_coroutine_threadsafe(
-                fetch_data(), bot_instance.loop)
+            future = asyncio.run_coroutine_threadsafe(fetch_data(), bot_instance.loop)
             df = future.result(timeout=10)
         else:
-            df = yf.download(symbol, period="1d",
-                             interval=interval, auto_adjust=True)
+            df = yf.download(symbol, period="1d", interval=interval, auto_adjust=True)
         df.reset_index(inplace=True)
-        df.columns = ['_'.join(map(str, col)) if isinstance(
-            col, tuple) else str(col) for col in df.columns]
+        # Standardize column names
+        df.columns = ['_'.join(map(str, col)) if isinstance(col, tuple) else str(col) for col in df.columns]
         data = df.to_dict(orient="records")
         return jsonify({"data": data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 
 @app.route("/status", methods=["GET"])
@@ -264,13 +264,10 @@ class DerivTradingBot:
         self.consecutive_loss_count = 0
         self.trade_history = []
         self.last_trade_record = None
-        
+
         # In your DerivTradingBot __init__, increase MIN_TRAINING_CYCLES:
 
-
         # Define a minimum acceptable confidence threshold
-
-
 
         # Robust ML model: PassiveAggressiveClassifier for online learning
         self.ml_model = PassiveAggressiveClassifier(
@@ -295,94 +292,109 @@ class DerivTradingBot:
     # ------------------------------
     def preprocess_data(self, df):
         try:
-            df.columns = [('_'.join(map(str, col)) if isinstance(
-                col, tuple) else str(col)).lower().rstrip('_') for col in df.columns]
+            # Standardize column names
+            df.columns = [('_'.join(map(str, col)) if isinstance(col, tuple) else str(col)).lower().rstrip('_') for col in df.columns]
             if not isinstance(df.index, pd.DatetimeIndex):
                 df.reset_index(inplace=True)
                 if 'datetime' in df.columns and pd.api.types.is_datetime64_any_dtype(df['datetime']):
                     df.set_index('datetime', inplace=True)
-
-            def find_and_rename_price_columns(df):
-                def find_column(target):
-                    for col in df.columns:
-                        if target in col:
-                            return col
-                    return None
-                close_col = find_column("close")
-                high_col = find_column("high")
-                low_col = find_column("low")
-                if close_col is None or high_col is None or low_col is None:
-                    self.logger.error(
-                        "Expected price columns not found in data.")
-                    raise KeyError("Missing price columns")
-                df.rename(
-                    columns={close_col: "close", high_col: "high", low_col: "low"}, inplace=True)
-                return df
-            df = find_and_rename_price_columns(df)
+            
+            # For Boom1000/Crash1000, our data only has "price" so we need to create OHLC columns.
+            if self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
+                if "price" in df.columns:
+                    # Create OHLC columns by copying Price. 
+                    # (This is a simplification; you may want to use a more sophisticated method.)
+                    df["close"] = df["price"]
+                    df["open"] = df["price"]
+                    df["high"] = df["price"]
+                    df["low"] = df["price"]
+                else:
+                    self.logger.error("Expected 'price' column not found in tick data.")
+                    raise KeyError("Missing price column for synthetic indices")
+            else:
+                # For other symbols, find and rename price columns.
+                def find_and_rename_price_columns(df):
+                    def find_column(target):
+                        for col in df.columns:
+                            if target in col:
+                                return col
+                        return None
+                    close_col = find_column("close")
+                    high_col = find_column("high")
+                    low_col = find_column("low")
+                    if close_col is None or high_col is None or low_col is None:
+                        self.logger.error("Expected price columns not found in data.")
+                        raise KeyError("Missing price columns")
+                    df.rename(columns={close_col: "close", high_col: "high", low_col: "low"}, inplace=True)
+                    return df
+                df = find_and_rename_price_columns(df)
+            
+            # Ensure the OHLC columns exist now.
             for col in ['close', 'high', 'low']:
                 df[col] = pd.Series(df[col].values.ravel(), index=df.index)
+
             close_series = df['close']
             high_series = df['high']
             low_series = df['low']
-            rsi_values = RSIIndicator(
-                close_series, window=14, fillna=True).rsi().to_numpy().ravel()
-            df['rsi'] = pd.Series(
-                rsi_values, index=df.index[-len(rsi_values):])
+
+            # Calculate technical indicators
+            rsi_values = RSIIndicator(close_series, window=14, fillna=True).rsi().to_numpy().ravel()
+            df['rsi'] = pd.Series(rsi_values, index=df.index[-len(rsi_values):])
+            
             macd_obj = MACD(close_series, fillna=True)
             macd_values = macd_obj.macd().to_numpy().ravel()
-            df['macd'] = pd.Series(
-                macd_values, index=df.index[-len(macd_values):])
+            df['macd'] = pd.Series(macd_values, index=df.index[-len(macd_values):])
             macd_hist_values = macd_obj.macd_diff().to_numpy().ravel()
-            df['macd_hist'] = pd.Series(
-                macd_hist_values, index=df.index[-len(macd_hist_values):])
+            df['macd_hist'] = pd.Series(macd_hist_values, index=df.index[-len(macd_hist_values):])
+            
             bb = ta.volatility.BollingerBands(close_series, fillna=True)
-            df['bollinger_hband'] = pd.Series(bb.bollinger_hband(
-            ).to_numpy().ravel(), index=df.index[-len(rsi_values):])
-            df['bollinger_lband'] = pd.Series(bb.bollinger_lband(
-            ).to_numpy().ravel(), index=df.index[-len(rsi_values):])
-            stoch = StochasticOscillator(
-                high_series, low_series, close_series, window=14, smooth_window=3, fillna=True)
+            df['bollinger_hband'] = pd.Series(bb.bollinger_hband().to_numpy().ravel(), index=df.index[-len(rsi_values):])
+            df['bollinger_lband'] = pd.Series(bb.bollinger_lband().to_numpy().ravel(), index=df.index[-len(rsi_values):])
+            
+            stoch = StochasticOscillator(high_series, low_series, close_series, window=14, smooth_window=3, fillna=True)
             stoch_k = stoch.stoch().to_numpy().ravel()
             stoch_d = stoch.stoch_signal().to_numpy().ravel()
             df['stoch_k'] = pd.Series(stoch_k, index=df.index[-len(stoch_k):])
             df['stoch_d'] = pd.Series(stoch_d, index=df.index[-len(stoch_d):])
+            
             rsi_diff = np.diff(rsi_values, prepend=rsi_values[0])
-            df['rsi_diff'] = pd.Series(
-                rsi_diff, index=df.index[-len(rsi_diff):])
-            roc_values = ROCIndicator(
-                close_series, window=12, fillna=True).roc().to_numpy().ravel()
-            df['roc'] = pd.Series(
-                roc_values, index=df.index[-len(roc_values):])
+            df['rsi_diff'] = pd.Series(rsi_diff, index=df.index[-len(rsi_diff):])
+            
+            roc_values = ROCIndicator(close_series, window=12, fillna=True).roc().to_numpy().ravel()
+            df['roc'] = pd.Series(roc_values, index=df.index[-len(roc_values):])
+            
             df['ma_20'] = df['close'].rolling(window=20).mean()
             df['ma_50'] = df['close'].rolling(window=50).mean()
             df['ma_diff'] = df['ma_20'] - df['ma_50']
             df['std_20'] = df['close'].rolling(window=20).std()
             df['volatility_ratio'] = df['std_20'] / df['ma_20']
-            atr_obj = ta.volatility.AverageTrueRange(
-                high_series, low_series, close_series, window=14, fillna=True)
+            
+            atr_obj = ta.volatility.AverageTrueRange(high_series, low_series, close_series, window=14, fillna=True)
             atr_raw = atr_obj.average_true_range()
             atr_values = safe_indicator_output(atr_raw, df.index)
             df['atr'] = atr_values
-            adx_obj = ADXIndicator(
-                high_series, low_series, close_series, window=14, fillna=True)
+            
+            adx_obj = ADXIndicator(high_series, low_series, close_series, window=14, fillna=True)
             adx_raw = adx_obj.adx()
             adx_values = safe_indicator_output(adx_raw, df.index)
             df['adx'] = adx_values
-            # Add regime feature
+            
+            # Add regime feature (if applicable)
             df = self.add_regime_features(df)
             # Incorporate additional features (e.g., market sentiment)
             df = self.get_additional_features(df)
+            
             df.dropna(inplace=True)
             df['future_return'] = df['close'].shift(-1) - df['close']
             df['direction'] = np.where(df['future_return'] > (0.0001 * df['close']), 1,
-                                       np.where(df['future_return'] < (-0.0001 * df['close']), 0, np.nan))
+                                    np.where(df['future_return'] < (-0.0001 * df['close']), 0, np.nan))
             df.dropna(inplace=True)
-            self.logger.info(
-                "Data preprocessing complete with enhanced features.")
+            self.logger.info("Data preprocessing complete with enhanced features.")
             return df
         except Exception as e:
             self.logger.error(f"Error in data preprocessing: {e}")
             return None
+
 
     # ------------------------------
     # Additional Features: Market Sentiment Integration
@@ -492,7 +504,8 @@ class DerivTradingBot:
             cycle_record["decision"] = "NEUTRAL"
             cycle_record["note"] = f"Model not calibrated (iterations: {self.training_iterations}). Skipping trade."
             self.trade_history.append(cycle_record)
-            self.logger.info("Skipping trade: insufficient training iterations.")
+            self.logger.info(
+                "Skipping trade: insufficient training iterations.")
             return
 
         df_latest = await self.fetch_historical_data(count=100, granularity=60)
@@ -531,7 +544,8 @@ class DerivTradingBot:
 
         try:
             prediction = self.ml_model.predict(latest_features_scaled)[0]
-            decision_score = self.ml_model.decision_function(latest_features_scaled)
+            decision_score = self.ml_model.decision_function(
+                latest_features_scaled)
             confidence = abs(decision_score[0])
         except Exception as e:
             cycle_record["decision"] = "SKIP"
@@ -547,7 +561,8 @@ class DerivTradingBot:
         if confidence < MIN_CONFIDENCE_THRESHOLD:
             cycle_record["note"] = f"Confidence {confidence:.2f} below threshold; trade skipped."
             self.trade_history.append(cycle_record)
-            self.logger.info(f"Skipping trade: low confidence ({confidence:.2f}).")
+            self.logger.info(
+                f"Skipping trade: low confidence ({confidence:.2f}).")
             return
 
         # Hysteresis check: if switching position, require higher confidence
@@ -555,7 +570,8 @@ class DerivTradingBot:
             if confidence < (self.confidence_threshold + self.hysteresis_margin):
                 cycle_record["note"] = f"Skipped trade: confidence {confidence:.2f} insufficient to switch."
                 self.trade_history.append(cycle_record)
-                self.logger.info(f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
+                self.logger.info(
+                    f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
                 return
 
         # Dynamic position sizing based on volatility (ATR)
@@ -563,7 +579,8 @@ class DerivTradingBot:
             current_atr = float(df_latest.iloc[-1]["atr"])
             current_price = float(df_latest.iloc[-1]["close"])
             volatility_factor = current_atr / current_price
-            adjusted_stake = self.fixed_stake * (0.5 / volatility_factor) if volatility_factor > 0 else self.fixed_stake
+            adjusted_stake = self.fixed_stake * \
+                (0.5 / volatility_factor) if volatility_factor > 0 else self.fixed_stake
             stake = max(min(adjusted_stake, self.max_stake), self.min_stake)
         except Exception as e:
             self.logger.error(f"Error adjusting stake dynamically: {e}")
@@ -577,10 +594,12 @@ class DerivTradingBot:
         # Check recent win rate; if below acceptable level, pause trading
         if len(self.trade_history) >= 20:
             recent = self.trade_history[-20:]
-            wins = sum(1 for rec in recent if rec.get("profit", 0) is not None and rec["profit"] > 0)
+            wins = sum(1 for rec in recent if rec.get(
+                "profit", 0) is not None and rec["profit"] > 0)
             win_rate = wins / 20.0
             if win_rate < 0.5:
-                self.logger.warning("Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
+                self.logger.warning(
+                    "Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
                 await asyncio.sleep(1800)
 
     # ------------------------------
@@ -590,7 +609,8 @@ class DerivTradingBot:
         try:
             response = await self.api.send({"balance": 1})
             if "balance" in response:
-                return response["balance"].get("currency", "USD")  # Default to USD if not found
+                # Default to USD if not found
+                return response["balance"].get("currency", "USD")
         except Exception as e:
             self.logger.error(f"Error fetching account currency: {e}")
         return "USD"  # Fallback
@@ -619,7 +639,6 @@ class DerivTradingBot:
         self.last_trade_state = latest_features_scaled
         self.last_trade_action = prediction
         currency = await self.get_account_currency()
-
 
         self.logger.info(
             f"Placing {decision} trade with {stake:.2f} USDT stake (Confidence: {confidence:.2f}).")
@@ -758,27 +777,33 @@ class DerivTradingBot:
                     "ticks_history": self.training_symbol.upper(),
                     "count": count,
                     "end": "latest",
-                    "granularity": granularity,
-                    "style": "candles"
+                    "granularity": granularity
+                    # Do not specify "style", so the API returns its default (history data)
                 }
                 response = await self.api.send(req)
-                if "candles" not in response:
-                    raise Exception("Candles not in response")
-                df = pd.DataFrame(response["candles"])
-                if df.empty:
-                    raise Exception("Empty DataFrame returned from Deriv API")
-                df["Datetime"] = pd.to_datetime(df["epoch"], unit="s")
-                df.drop(columns=["epoch"], inplace=True)
+                # Check if the response contains the 'history' key with 'prices' and 'times'
+                if ("history" in response and 
+                    "prices" in response["history"] and 
+                    "times" in response["history"]):
+                    df = pd.DataFrame({
+                        "datetime": pd.to_datetime(response["history"]["times"], unit="s"),
+                        "price": response["history"]["prices"]
+                    })
+                    df.set_index("datetime", inplace=True)
+                    return df
+                else:
+                    raise Exception("History data not found in API response")
             else:
                 symbol = self.training_symbol
                 if symbol.lower().startswith("frx"):
                     symbol = symbol[3:] + "=X"
-                df = yf.download(symbol, period="1d",
-                                 interval="1m", auto_adjust=True)
-            return df
+                df = yf.download(symbol, period="1d", interval="1m", auto_adjust=True)
+                return df
         except Exception as e:
             self.logger.error(f"Error fetching historical data: {e}")
             return None
+
+
 
     def connect_api(self):
         try:
