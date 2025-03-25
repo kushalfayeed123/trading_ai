@@ -784,7 +784,7 @@ class DerivTradingBot:
             return
         self.last_trade_state = latest_features_scaled
         self.last_trade_action = prediction
-        # currency = await self.get_account_currency()
+        currency = await self.get_account_currency()
 
         self.logger.info(
             f"Placing {decision} trade with {stake:.2f} USDT stake (Confidence: {confidence:.2f}).")
@@ -792,7 +792,7 @@ class DerivTradingBot:
             "amount": stake,
             "basis": "stake",
             "contract_type": decision,
-            "currency": 'USD',
+            "currency": currency,
             "duration": self.contract_duration,
             "duration_unit": "m",
             "symbol": self.training_symbol
