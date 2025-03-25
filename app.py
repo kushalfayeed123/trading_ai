@@ -218,6 +218,112 @@ def status():
 def notification():
     return jsonify({"notification": notification_msg})
 
+
+def detect_support_resistance(df, short_window=50, long_window=200):
+    """Identify dynamic support and resistance levels based on the Price column."""
+    if len(df) < long_window:
+        return None, None  # Not enough data
+    # Use the "Price" column from your raw API response (for Boom1000/Crash1000)
+    df["rolling_min"] = df["price"].rolling(window=short_window).min()
+    df["rolling_max"] = df["price"].rolling(window=short_window).max()
+
+    short_support = df["rolling_min"].iloc[-1]
+    short_resistance = df["rolling_max"].iloc[-1]
+
+    long_support = df["price"].rolling(window=long_window).min().iloc[-1]
+    long_resistance = df["price"].rolling(window=long_window).max().iloc[-1]
+
+    return (short_support, short_resistance), (long_support, long_resistance)
+
+def sophisticated_support_resistance(df, window=10, tolerance=0.002):
+    """
+    Calculate support and resistance levels using local swing points and clustering.
+    
+    For synthetic indices (e.g. Boom1000/Crash1000), the DataFrame is expected to have a "price" column.
+    For other symbols (from yfinance), it will use the "close" column.
+    
+    Parameters:
+      df (DataFrame): Must include either a column "price" or "close".
+      window (int): Look-back window to detect swing lows and highs.
+      tolerance (float): Fractional tolerance for clustering levels (e.g., 0.002 = 0.2%).
+      
+    Returns:
+      support (float): The strongest support level (average of the largest cluster of swing lows).
+      resistance (float): The strongest resistance level (average of the largest cluster of swing highs).
+    """
+    logger.info(f"DataFrame columns: {df.columns.tolist()}")
+    
+    # Determine the appropriate column for price data.
+    if "price" in df.columns:
+        price_col = "price"
+    elif "close" in df.columns:
+        price_col = "close"
+    else:
+        raise KeyError("Expected 'price' or 'close' column not found in DataFrame")
+    
+    prices = df[price_col].values
+    swing_lows = []
+    swing_highs = []
+    
+    # Identify swing lows and swing highs using a sliding window.
+    for i in range(window, len(prices) - window):
+        window_slice = prices[i - window: i + window + 1]
+        current = prices[i]
+        if current == window_slice.min():
+            swing_lows.append(current)
+        if current == window_slice.max():
+            swing_highs.append(current)
+    
+    if not swing_lows or not swing_highs:
+        return None, None
+    
+    # Cluster swing lows.
+    swing_lows.sort()
+    clusters_low = []
+    current_cluster = [swing_lows[0]]
+    for price in swing_lows[1:]:
+        if abs(price - current_cluster[-1]) / current_cluster[-1] < tolerance:
+            current_cluster.append(price)
+        else:
+            clusters_low.append(current_cluster)
+            current_cluster = [price]
+    clusters_low.append(current_cluster)
+    support = np.mean(max(clusters_low, key=len))
+    
+    # Cluster swing highs.
+    swing_highs.sort(reverse=True)
+    clusters_high = []
+    current_cluster = [swing_highs[0]]
+    for price in swing_highs[1:]:
+        if abs(price - current_cluster[-1]) / current_cluster[-1] < tolerance:
+            current_cluster.append(price)
+        else:
+            clusters_high.append(current_cluster)
+            current_cluster = [price]
+    clusters_high.append(current_cluster)
+    resistance = np.mean(max(clusters_high, key=len))
+    
+    return support, resistance
+
+
+
+def should_trade(price, trade_signal, short_sr, long_sr):
+    """Validate trade signal based on support/resistance levels.
+       For a CALL, require price to be at or near support.
+       For a PUT, require price to be at or near resistance.
+    """
+    # Example buffer values: adjust these thresholds to your liking
+    buffer_ratio = 0.005  # 0.5% buffer
+    if trade_signal == "CALL":
+        # Allow trade if price is within buffer above short-term support
+        if price <= short_sr * (1 + buffer_ratio):
+            return True
+    elif trade_signal == "PUT":
+        # Allow trade if price is within buffer below short-term resistance
+        if price >= short_sr * (1 - buffer_ratio):
+            return True
+    return False
+
 # ------------------------------
 # Trading Bot Class with Enhancements
 # ------------------------------
@@ -272,6 +378,24 @@ class DerivTradingBot:
         # Robust ML model: PassiveAggressiveClassifier for online learning
         self.ml_model = PassiveAggressiveClassifier(
             max_iter=1000, tol=1e-3, C=1.0)
+        
+    def predict_trade_signal(self, df):
+        """
+        Predict trade signal using the AI model.
+        Expects df to contain all features except the raw Price.
+        """
+        try:
+            # Drop the "Price" column from features (if present)
+            features = df.iloc[-1:].drop(columns=["Price"], errors="ignore")
+            if self.scaler is None:
+                return "NEUTRAL"
+            features_scaled = self.scaler.transform(features)
+            prediction = self.ml_model.predict(features_scaled)[0]
+            return "CALL" if prediction == 1 else "PUT"
+        except Exception as e:
+            self.logger.error(f"Error in predict_trade_signal: {e}")
+            return "NEUTRAL"
+
 
     # ------------------------------
     # Add Regime Feature
@@ -499,13 +623,11 @@ class DerivTradingBot:
             "note": ""
         }
 
-        # Skip trading if the model hasn't been sufficiently calibrated
         if self.training_iterations < self.MIN_TRAINING_CYCLES:
             cycle_record["decision"] = "NEUTRAL"
             cycle_record["note"] = f"Model not calibrated (iterations: {self.training_iterations}). Skipping trade."
             self.trade_history.append(cycle_record)
-            self.logger.info(
-                "Skipping trade: insufficient training iterations.")
+            self.logger.info("Skipping trade: insufficient training iterations.")
             return
 
         df_latest = await self.fetch_historical_data(count=100, granularity=60)
@@ -544,8 +666,7 @@ class DerivTradingBot:
 
         try:
             prediction = self.ml_model.predict(latest_features_scaled)[0]
-            decision_score = self.ml_model.decision_function(
-                latest_features_scaled)
+            decision_score = self.ml_model.decision_function(latest_features_scaled)
             confidence = abs(decision_score[0])
         except Exception as e:
             cycle_record["decision"] = "SKIP"
@@ -555,32 +676,56 @@ class DerivTradingBot:
             return
 
         cycle_record["confidence"] = confidence
-        cycle_record["decision"] = "CALL" if prediction == 1 else "PUT"
+        trade_signal = "CALL" if prediction == 1 else "PUT"
+        cycle_record["decision"] = trade_signal
 
-        # Additional risk check: if confidence is too low, skip the trade
         if confidence < MIN_CONFIDENCE_THRESHOLD:
             cycle_record["note"] = f"Confidence {confidence:.2f} below threshold; trade skipped."
             self.trade_history.append(cycle_record)
-            self.logger.info(
-                f"Skipping trade: low confidence ({confidence:.2f}).")
+            self.logger.info(f"Skipping trade: low confidence ({confidence:.2f}).")
             return
 
-        # Hysteresis check: if switching position, require higher confidence
         if self.current_position is not None and prediction != self.current_position:
             if confidence < (self.confidence_threshold + self.hysteresis_margin):
                 cycle_record["note"] = f"Skipped trade: confidence {confidence:.2f} insufficient to switch."
                 self.trade_history.append(cycle_record)
-                self.logger.info(
-                    f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
+                self.logger.info(f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
                 return
 
-        # Dynamic position sizing based on volatility (ATR)
+        # --- Sophisticated S/R Check ---
+        try:
+            sr_levels = sophisticated_support_resistance(df_latest, window=10, tolerance=0.002)
+            if sr_levels is None:
+                self.logger.warning("S/R detection failed; insufficient swing points.")
+                return
+            sr_support, sr_resistance = sr_levels
+        except Exception as e:
+            self.logger.error(f"Error detecting S/R levels: {e}")
+            return
+
+        current_price = df_latest["close"].iloc[-1]
+        # Example S/R decision logic:
+        if trade_signal == "CALL":
+            # For a BUY, price should be near support.
+            if current_price > sr_support * (1 + 0.005):
+                cycle_record["note"] = f"Trade signal {trade_signal} rejected: price {current_price} is not near support {sr_support}"
+                self.trade_history.append(cycle_record)
+                self.logger.info(cycle_record["note"])
+                return
+        elif trade_signal == "PUT":
+            # For a SELL, price should be near resistance.
+            if current_price < sr_resistance * (1 - 0.005):
+                cycle_record["note"] = f"Trade signal {trade_signal} rejected: price {current_price} is not near resistance {sr_resistance}"
+                self.trade_history.append(cycle_record)
+                self.logger.info(cycle_record["note"])
+                return
+
+        # Dynamic position sizing remains unchanged.
         try:
             current_atr = float(df_latest.iloc[-1]["atr"])
             current_price = float(df_latest.iloc[-1]["close"])
             volatility_factor = current_atr / current_price
-            adjusted_stake = self.fixed_stake * \
-                (0.5 / volatility_factor) if volatility_factor > 0 else self.fixed_stake
+            adjusted_stake = self.fixed_stake * (0.5 / volatility_factor) if volatility_factor > 0 else self.fixed_stake
             stake = max(min(adjusted_stake, self.max_stake), self.min_stake)
         except Exception as e:
             self.logger.error(f"Error adjusting stake dynamically: {e}")
@@ -591,16 +736,15 @@ class DerivTradingBot:
         cycle_record["note"] = "Trade executed."
         self.trade_history.append(cycle_record)
 
-        # Check recent win rate; if below acceptable level, pause trading
         if len(self.trade_history) >= 20:
             recent = self.trade_history[-20:]
-            wins = sum(1 for rec in recent if rec.get(
-                "profit", 0) is not None and rec["profit"] > 0)
+            wins = sum(1 for rec in recent if rec.get("profit", 0) is not None and rec["profit"] > 0)
             win_rate = wins / 20.0
             if win_rate < 0.5:
-                self.logger.warning(
-                    "Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
+                self.logger.warning("Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
                 await asyncio.sleep(1800)
+
+
 
     # ------------------------------
     # Place Trade: Execute the Trade via API
@@ -610,6 +754,8 @@ class DerivTradingBot:
             response = await self.api.send({"balance": 1})
             if "balance" in response:
                 # Default to USD if not found
+                self.logger.error(response)
+
                 return response["balance"].get("currency", "USD")
         except Exception as e:
             self.logger.error(f"Error fetching account currency: {e}")
@@ -638,7 +784,7 @@ class DerivTradingBot:
             return
         self.last_trade_state = latest_features_scaled
         self.last_trade_action = prediction
-        currency = await self.get_account_currency()
+        # currency = await self.get_account_currency()
 
         self.logger.info(
             f"Placing {decision} trade with {stake:.2f} USDT stake (Confidence: {confidence:.2f}).")
@@ -646,12 +792,14 @@ class DerivTradingBot:
             "amount": stake,
             "basis": "stake",
             "contract_type": decision,
-            "currency": currency,
+            "currency": 'USD',
             "duration": self.contract_duration,
             "duration_unit": "m",
             "symbol": self.training_symbol
         }
         proposal_response = await self.api.proposal(proposal_req)
+        logger.info(f"Raw API response for account currency: {proposal_response}")
+
         if not proposal_response or "proposal" not in proposal_response:
             self.logger.error("Trade proposal failed.")
             return
