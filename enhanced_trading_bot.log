@@ -31907,3 +31907,1096 @@
 2025-03-25 08:06:22,285 - INFO - Trade cycle complete.
 2025-03-25 08:06:22,314 - INFO - Waiting 1.0 minutes before next trade.
 2025-03-25 08:06:25,319 - ERROR - Failed to fetch training data for model update.
+2025-03-26 07:22:56,008 - INFO - Connecting to Deriv API...
+2025-03-26 07:22:58,324 - INFO - API authorized successfully.
+2025-03-26 07:22:58,657 - INFO - Updated balance: 10002.65 USDT; Fixed stake: 100.03 USDT
+2025-03-26 07:22:58,657 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:23:02,725 - INFO - Added market regime features.
+2025-03-26 07:23:03,697 - INFO - Market sentiment added: -0.06
+2025-03-26 07:23:03,728 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:23:03,731 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:23:03,754 - INFO - Initializing online model with partial_fit using advanced features.
+2025-03-26 07:23:03,760 - INFO - Training iteration: 1
+2025-03-26 07:23:58,670 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:24:04,131 - INFO - Added market regime features.
+2025-03-26 07:24:04,907 - INFO - Market sentiment added: -0.06
+2025-03-26 07:24:04,938 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:24:04,938 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:24:04,957 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:24:04,961 - INFO - Training iteration: 2
+2025-03-26 07:24:58,677 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:25:05,359 - INFO - Added market regime features.
+2025-03-26 07:25:06,222 - INFO - Market sentiment added: -0.06
+2025-03-26 07:25:06,235 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:25:06,235 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:25:06,242 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:25:06,249 - INFO - Training iteration: 3
+2025-03-26 07:25:58,700 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:26:07,065 - INFO - Added market regime features.
+2025-03-26 07:26:16,958 - INFO - Market sentiment added: -0.06
+2025-03-26 07:26:16,974 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:26:16,977 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:26:16,987 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:26:16,987 - INFO - Training iteration: 4
+2025-03-26 07:26:24,091 - INFO - Connecting to Deriv API...
+2025-03-26 07:26:26,704 - INFO - API authorized successfully.
+2025-03-26 07:26:27,306 - INFO - Updated balance: 10002.65 USDT; Fixed stake: 100.03 USDT
+2025-03-26 07:26:27,322 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:26:31,034 - INFO - Added market regime features.
+2025-03-26 07:26:32,403 - INFO - Market sentiment added: -0.06
+2025-03-26 07:26:32,427 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:26:32,432 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:26:32,445 - INFO - Initializing online model with partial_fit using advanced features.
+2025-03-26 07:26:32,450 - INFO - Training iteration: 1
+2025-03-26 07:27:27,322 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:27:33,058 - INFO - Added market regime features.
+2025-03-26 07:27:33,871 - INFO - Market sentiment added: -0.06
+2025-03-26 07:27:33,902 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:27:33,907 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:27:33,915 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:27:33,923 - INFO - Training iteration: 2
+2025-03-26 07:28:27,319 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:28:34,345 - INFO - Added market regime features.
+2025-03-26 07:28:35,451 - INFO - Market sentiment added: -0.06
+2025-03-26 07:28:35,451 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:28:35,459 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:28:35,464 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:28:35,470 - INFO - Training iteration: 3
+2025-03-26 07:29:27,340 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:29:35,940 - INFO - Added market regime features.
+2025-03-26 07:29:38,254 - INFO - Market sentiment added: -0.06
+2025-03-26 07:29:38,279 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:29:38,283 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:29:38,284 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:29:38,292 - INFO - Training iteration: 4
+2025-03-26 07:30:27,346 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:30:38,730 - INFO - Added market regime features.
+2025-03-26 07:30:39,637 - INFO - Market sentiment added: -0.06
+2025-03-26 07:30:39,653 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:30:39,653 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:30:39,661 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:30:39,669 - INFO - Training iteration: 5
+2025-03-26 07:31:27,350 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:31:40,035 - INFO - Added market regime features.
+2025-03-26 07:31:41,011 - INFO - Market sentiment added: -0.06
+2025-03-26 07:31:41,026 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:31:41,026 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:31:41,043 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:31:41,049 - INFO - Training iteration: 6
+2025-03-26 07:32:27,362 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:32:41,449 - INFO - Added market regime features.
+2025-03-26 07:32:42,218 - INFO - Market sentiment added: -0.06
+2025-03-26 07:32:42,239 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:32:42,239 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:32:42,251 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:32:42,251 - INFO - Training iteration: 7
+2025-03-26 07:33:27,370 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:33:42,712 - INFO - Added market regime features.
+2025-03-26 07:33:43,675 - INFO - Market sentiment added: -0.06
+2025-03-26 07:33:43,675 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:33:43,675 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:33:43,697 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:33:43,703 - INFO - Training iteration: 8
+2025-03-26 07:34:27,383 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:34:44,268 - INFO - Added market regime features.
+2025-03-26 07:34:45,109 - INFO - Market sentiment added: -0.06
+2025-03-26 07:34:45,129 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:34:45,129 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:34:45,144 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:34:45,149 - INFO - Training iteration: 9
+2025-03-26 07:35:27,391 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:35:45,495 - INFO - Added market regime features.
+2025-03-26 07:35:46,206 - INFO - Market sentiment added: -0.06
+2025-03-26 07:35:46,222 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:35:46,224 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:35:46,224 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:35:46,233 - INFO - Training iteration: 10
+2025-03-26 07:36:27,384 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:36:46,636 - INFO - Added market regime features.
+2025-03-26 07:36:47,471 - INFO - Market sentiment added: -0.06
+2025-03-26 07:36:47,492 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:36:47,500 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:36:47,508 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:36:47,513 - INFO - Training iteration: 11
+2025-03-26 07:37:27,383 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:37:48,099 - INFO - Added market regime features.
+2025-03-26 07:37:48,841 - INFO - Market sentiment added: -0.06
+2025-03-26 07:37:48,860 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 07:37:48,860 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 07:37:48,890 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 07:37:48,890 - INFO - Training iteration: 12
+2025-03-26 07:38:27,386 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 07:38:49,382 - INFO - Added market regime features.
+2025-03-26 09:19:48,043 - INFO - Connecting to Deriv API...
+2025-03-26 09:19:53,873 - INFO - API authorized successfully.
+2025-03-26 09:19:54,139 - INFO - Updated balance: 10002.65 USDT; Fixed stake: 100.03 USDT
+2025-03-26 09:19:54,139 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:19:57,075 - INFO - Added market regime features.
+2025-03-26 09:20:01,836 - INFO - Market sentiment added: -0.06
+2025-03-26 09:20:01,864 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:20:01,866 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:20:01,877 - INFO - Initializing online model with partial_fit using advanced features.
+2025-03-26 09:20:01,890 - INFO - Training iteration: 1
+2025-03-26 09:20:54,165 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:21:02,523 - INFO - Added market regime features.
+2025-03-26 09:21:03,271 - INFO - Market sentiment added: -0.06
+2025-03-26 09:21:03,287 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:21:03,287 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:21:03,297 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:21:03,301 - INFO - Training iteration: 2
+2025-03-26 09:21:54,158 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:22:04,508 - INFO - Added market regime features.
+2025-03-26 09:22:05,387 - INFO - Market sentiment added: -0.06
+2025-03-26 09:22:05,387 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:22:05,387 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:22:05,410 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:22:05,413 - INFO - Training iteration: 3
+2025-03-26 09:22:54,164 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:23:06,432 - INFO - Added market regime features.
+2025-03-26 09:23:07,199 - INFO - Market sentiment added: -0.06
+2025-03-26 09:23:07,199 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:23:07,215 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:23:07,226 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:23:07,228 - INFO - Training iteration: 4
+2025-03-26 09:23:54,186 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:24:07,569 - INFO - Added market regime features.
+2025-03-26 09:24:08,297 - INFO - Market sentiment added: -0.06
+2025-03-26 09:24:08,297 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:24:08,312 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:24:08,320 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:24:08,324 - INFO - Training iteration: 5
+2025-03-26 09:24:54,185 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:25:08,734 - INFO - Added market regime features.
+2025-03-26 09:25:09,428 - INFO - Market sentiment added: -0.06
+2025-03-26 09:25:09,463 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:25:09,465 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:25:09,479 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:25:09,481 - INFO - Training iteration: 6
+2025-03-26 09:25:54,190 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:26:10,024 - INFO - Added market regime features.
+2025-03-26 09:26:10,741 - INFO - Market sentiment added: -0.06
+2025-03-26 09:26:10,757 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:26:10,774 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:26:10,786 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:26:10,788 - INFO - Training iteration: 7
+2025-03-26 09:26:54,211 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:27:11,175 - INFO - Added market regime features.
+2025-03-26 09:27:11,953 - INFO - Market sentiment added: -0.06
+2025-03-26 09:27:11,953 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:27:11,953 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:27:11,969 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:27:11,972 - INFO - Training iteration: 8
+2025-03-26 09:27:54,216 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:28:12,352 - INFO - Added market regime features.
+2025-03-26 09:28:13,218 - INFO - Market sentiment added: -0.06
+2025-03-26 09:28:13,218 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:28:13,218 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:28:13,231 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:28:13,234 - INFO - Training iteration: 9
+2025-03-26 09:28:54,220 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:29:13,650 - INFO - Added market regime features.
+2025-03-26 09:29:14,467 - INFO - Market sentiment added: -0.06
+2025-03-26 09:29:14,475 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:29:14,477 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:29:14,488 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:29:14,491 - INFO - Training iteration: 10
+2025-03-26 09:29:54,227 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:30:14,963 - INFO - Added market regime features.
+2025-03-26 09:30:15,797 - INFO - Market sentiment added: -0.06
+2025-03-26 09:30:15,823 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:30:15,824 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:30:15,834 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:30:15,837 - INFO - Training iteration: 11
+2025-03-26 09:30:54,236 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:31:16,199 - INFO - Added market regime features.
+2025-03-26 09:31:16,964 - INFO - Market sentiment added: -0.06
+2025-03-26 09:31:16,980 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:31:16,980 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:31:17,002 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:31:17,005 - INFO - Training iteration: 12
+2025-03-26 09:31:54,243 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:32:17,362 - INFO - Added market regime features.
+2025-03-26 09:32:18,390 - INFO - Market sentiment added: -0.06
+2025-03-26 09:32:18,390 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:32:18,406 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:32:18,412 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:32:18,415 - INFO - Training iteration: 13
+2025-03-26 09:32:54,246 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:33:18,757 - INFO - Added market regime features.
+2025-03-26 09:33:19,470 - INFO - Market sentiment added: -0.06
+2025-03-26 09:33:19,516 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:33:19,520 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:33:19,539 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:33:19,539 - INFO - Training iteration: 14
+2025-03-26 09:33:54,271 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:34:19,938 - INFO - Added market regime features.
+2025-03-26 09:34:20,701 - INFO - Market sentiment added: -0.06
+2025-03-26 09:34:20,717 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:34:20,717 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:34:20,863 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:34:20,906 - INFO - Training iteration: 15
+2025-03-26 09:34:54,272 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:35:21,351 - INFO - Added market regime features.
+2025-03-26 09:35:22,081 - INFO - Market sentiment added: -0.06
+2025-03-26 09:35:22,097 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:35:22,097 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:35:22,116 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:35:22,118 - INFO - Training iteration: 16
+2025-03-26 09:35:54,279 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:36:24,130 - INFO - Added market regime features.
+2025-03-26 09:36:27,238 - INFO - Market sentiment added: -0.06
+2025-03-26 09:36:27,272 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:36:27,282 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:36:27,299 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:36:27,305 - INFO - Training iteration: 17
+2025-03-26 09:36:54,296 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:37:27,692 - INFO - Added market regime features.
+2025-03-26 09:37:28,642 - INFO - Market sentiment added: -0.06
+2025-03-26 09:37:28,659 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:37:28,662 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:37:28,673 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:37:28,676 - INFO - Training iteration: 18
+2025-03-26 09:37:54,317 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:38:29,071 - INFO - Added market regime features.
+2025-03-26 09:38:29,773 - INFO - Market sentiment added: -0.06
+2025-03-26 09:38:29,773 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:38:29,788 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:38:29,799 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:38:29,801 - INFO - Training iteration: 19
+2025-03-26 09:38:54,322 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:39:30,193 - INFO - Added market regime features.
+2025-03-26 09:39:30,920 - INFO - Market sentiment added: -0.06
+2025-03-26 09:39:30,936 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:39:30,936 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:39:30,954 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:39:30,957 - INFO - Training iteration: 20
+2025-03-26 09:39:54,321 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:40:31,550 - INFO - Added market regime features.
+2025-03-26 09:40:32,319 - INFO - Market sentiment added: -0.06
+2025-03-26 09:40:32,368 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:40:32,371 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:40:32,383 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:40:32,383 - INFO - Training iteration: 21
+2025-03-26 09:40:54,320 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:41:32,784 - INFO - Added market regime features.
+2025-03-26 09:41:33,582 - INFO - Market sentiment added: -0.06
+2025-03-26 09:41:33,625 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:41:33,627 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:41:33,642 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:41:33,644 - INFO - Training iteration: 22
+2025-03-26 09:41:54,317 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:42:34,065 - INFO - Added market regime features.
+2025-03-26 09:42:35,423 - INFO - Market sentiment added: -0.06
+2025-03-26 09:42:35,457 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:42:35,461 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:42:35,477 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:42:35,477 - INFO - Training iteration: 23
+2025-03-26 09:42:54,328 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:43:35,892 - INFO - Added market regime features.
+2025-03-26 09:43:36,725 - INFO - Market sentiment added: -0.06
+2025-03-26 09:43:36,725 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:43:36,741 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:43:36,750 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:43:36,752 - INFO - Training iteration: 24
+2025-03-26 09:43:54,347 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:44:37,388 - INFO - Added market regime features.
+2025-03-26 09:44:38,590 - INFO - Market sentiment added: -0.06
+2025-03-26 09:44:38,623 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:44:38,626 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:44:38,641 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:44:38,644 - INFO - Training iteration: 25
+2025-03-26 09:44:54,352 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:45:39,142 - INFO - Added market regime features.
+2025-03-26 09:45:39,987 - INFO - Market sentiment added: -0.06
+2025-03-26 09:45:40,039 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:45:40,041 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:45:40,054 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:45:40,065 - INFO - Training iteration: 26
+2025-03-26 09:45:54,360 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:46:40,466 - INFO - Added market regime features.
+2025-03-26 09:46:44,194 - INFO - Market sentiment added: -0.06
+2025-03-26 09:46:44,209 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:46:44,209 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:46:44,243 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:46:44,245 - INFO - Training iteration: 27
+2025-03-26 09:46:54,360 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:47:44,630 - INFO - Added market regime features.
+2025-03-26 09:47:45,513 - INFO - Market sentiment added: -0.06
+2025-03-26 09:47:45,533 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:47:45,535 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:47:45,557 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:47:45,560 - INFO - Training iteration: 28
+2025-03-26 09:47:54,374 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:48:46,061 - INFO - Added market regime features.
+2025-03-26 09:48:46,844 - INFO - Market sentiment added: -0.06
+2025-03-26 09:48:46,844 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:48:46,860 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:48:46,868 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:48:46,870 - INFO - Training iteration: 29
+2025-03-26 09:48:54,390 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:49:47,295 - INFO - Added market regime features.
+2025-03-26 09:49:48,158 - INFO - Market sentiment added: -0.06
+2025-03-26 09:49:48,184 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:49:48,185 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:49:48,210 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:49:48,240 - INFO - Training iteration: 30
+2025-03-26 09:49:54,405 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:50:48,643 - INFO - Added market regime features.
+2025-03-26 09:50:49,531 - INFO - Market sentiment added: -0.06
+2025-03-26 09:50:49,531 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:50:49,546 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:50:49,559 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:50:49,563 - INFO - Training iteration: 31
+2025-03-26 09:50:54,412 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:51:50,019 - INFO - Added market regime features.
+2025-03-26 09:51:50,970 - INFO - Market sentiment added: -0.06
+2025-03-26 09:51:50,989 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:51:50,991 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:51:51,009 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:51:51,013 - INFO - Training iteration: 32
+2025-03-26 09:51:54,406 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:52:51,403 - INFO - Added market regime features.
+2025-03-26 09:52:52,295 - INFO - Market sentiment added: -0.06
+2025-03-26 09:52:52,310 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:52:52,310 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:52:52,324 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:52:52,326 - INFO - Training iteration: 33
+2025-03-26 09:52:54,406 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:53:52,692 - INFO - Added market regime features.
+2025-03-26 09:53:53,563 - INFO - Market sentiment added: -0.06
+2025-03-26 09:53:53,573 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:53:53,574 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:53:53,589 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:53:53,604 - INFO - Training iteration: 34
+2025-03-26 09:53:54,431 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:54:54,093 - INFO - Added market regime features.
+2025-03-26 09:54:54,945 - INFO - Market sentiment added: -0.06
+2025-03-26 09:54:54,984 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:54:54,988 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:54:54,998 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:54:55,011 - INFO - Training iteration: 35
+2025-03-26 09:54:55,012 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:55:55,378 - INFO - Added market regime features.
+2025-03-26 09:55:56,374 - INFO - Market sentiment added: -0.06
+2025-03-26 09:55:56,380 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:55:56,382 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:55:56,391 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:55:56,394 - INFO - Training iteration: 36
+2025-03-26 09:55:56,398 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:56:56,764 - INFO - Added market regime features.
+2025-03-26 09:56:57,634 - INFO - Market sentiment added: -0.06
+2025-03-26 09:56:57,641 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:56:57,642 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:56:57,649 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:56:57,651 - INFO - Training iteration: 37
+2025-03-26 09:56:57,652 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:57:58,048 - INFO - Added market regime features.
+2025-03-26 09:57:58,947 - INFO - Market sentiment added: -0.06
+2025-03-26 09:57:58,960 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:57:58,962 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:57:58,980 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:57:58,989 - INFO - Training iteration: 38
+2025-03-26 09:57:58,992 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 09:58:59,398 - INFO - Added market regime features.
+2025-03-26 09:59:00,293 - INFO - Market sentiment added: -0.06
+2025-03-26 09:59:00,321 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 09:59:00,323 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 09:59:00,335 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 09:59:00,340 - INFO - Training iteration: 39
+2025-03-26 09:59:00,341 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 10:00:00,746 - INFO - Added market regime features.
+2025-03-26 10:00:01,515 - INFO - Market sentiment added: -0.06
+2025-03-26 10:00:01,515 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 10:00:01,515 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 10:00:01,545 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 10:00:01,549 - INFO - Training iteration: 40
+2025-03-26 10:00:01,549 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 10:01:01,926 - INFO - Added market regime features.
+2025-03-26 10:01:02,726 - INFO - Market sentiment added: -0.06
+2025-03-26 10:01:02,726 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 10:01:02,726 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 10:01:02,755 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 10:01:02,759 - INFO - Training iteration: 41
+2025-03-26 10:01:02,762 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 10:02:03,157 - INFO - Added market regime features.
+2025-03-26 10:02:04,156 - INFO - Market sentiment added: -0.06
+2025-03-26 10:02:04,156 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 10:02:04,172 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 10:02:04,181 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 10:02:04,183 - INFO - Training iteration: 42
+2025-03-26 10:02:04,184 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 10:03:04,715 - INFO - Added market regime features.
+2025-03-26 10:03:06,098 - INFO - Market sentiment added: -0.06
+2025-03-26 10:03:06,106 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 10:03:06,107 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 10:03:06,121 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 10:03:06,130 - INFO - Training iteration: 43
+2025-03-26 10:03:06,132 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 10:04:06,534 - INFO - Added market regime features.
+2025-03-26 10:04:07,503 - INFO - Market sentiment added: -0.06
+2025-03-26 10:04:07,544 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 10:04:07,545 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 10:04:07,559 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 10:04:07,561 - INFO - Training iteration: 44
+2025-03-26 10:04:07,562 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 10:05:07,931 - INFO - Added market regime features.
+2025-03-26 10:05:08,666 - INFO - Market sentiment added: -0.06
+2025-03-26 10:05:08,682 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 10:05:08,682 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 10:05:08,701 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 10:05:08,704 - INFO - Training iteration: 45
+2025-03-26 10:05:08,706 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 10:06:09,099 - INFO - Added market regime features.
+2025-03-26 10:06:09,878 - INFO - Market sentiment added: -0.06
+2025-03-26 10:06:09,899 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 10:06:09,902 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 10:06:09,914 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 10:06:09,917 - INFO - Training iteration: 46
+2025-03-26 10:06:09,919 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:35:59,787 - INFO - Connecting to Deriv API...
+2025-03-26 13:36:01,667 - INFO - API authorized successfully.
+2025-03-26 13:36:01,933 - INFO - Updated balance: 10002.65 USDT; Fixed stake: 100.03 USDT
+2025-03-26 13:36:01,933 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:36:03,871 - INFO - Added market regime features.
+2025-03-26 13:36:04,771 - INFO - Market sentiment added: -0.06
+2025-03-26 13:36:04,802 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:36:04,806 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:36:04,819 - INFO - Initializing online model with partial_fit using advanced features.
+2025-03-26 13:36:04,819 - INFO - Training iteration: 1
+2025-03-26 13:37:01,970 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:37:05,219 - INFO - Added market regime features.
+2025-03-26 13:37:05,952 - INFO - Market sentiment added: -0.06
+2025-03-26 13:37:05,952 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:37:05,968 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:37:05,979 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:37:05,983 - INFO - Training iteration: 2
+2025-03-26 13:38:01,958 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:38:06,435 - INFO - Added market regime features.
+2025-03-26 13:38:07,197 - INFO - Market sentiment added: -0.06
+2025-03-26 13:38:07,217 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:38:07,217 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:38:07,232 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:38:07,232 - INFO - Training iteration: 3
+2025-03-26 13:39:01,967 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:39:07,730 - INFO - Added market regime features.
+2025-03-26 13:39:08,497 - INFO - Market sentiment added: -0.06
+2025-03-26 13:39:08,497 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:39:08,497 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:39:08,520 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:39:08,522 - INFO - Training iteration: 4
+2025-03-26 13:40:01,983 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:40:08,878 - INFO - Added market regime features.
+2025-03-26 13:40:10,626 - INFO - Market sentiment added: -0.06
+2025-03-26 13:40:10,661 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:40:10,663 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:40:10,677 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:40:10,682 - INFO - Training iteration: 5
+2025-03-26 13:41:01,982 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:41:11,057 - INFO - Added market regime features.
+2025-03-26 13:41:12,176 - INFO - Market sentiment added: -0.06
+2025-03-26 13:41:12,211 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:41:12,213 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:41:12,228 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:41:12,230 - INFO - Training iteration: 6
+2025-03-26 13:42:01,984 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:42:12,705 - INFO - Added market regime features.
+2025-03-26 13:42:13,526 - INFO - Market sentiment added: -0.06
+2025-03-26 13:42:13,553 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:42:13,555 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:42:13,566 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:42:13,569 - INFO - Training iteration: 7
+2025-03-26 13:43:01,981 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:43:13,974 - INFO - Added market regime features.
+2025-03-26 13:43:14,686 - INFO - Market sentiment added: -0.06
+2025-03-26 13:43:14,686 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:43:14,701 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:43:14,706 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:43:14,706 - INFO - Training iteration: 8
+2025-03-26 13:44:01,979 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:44:15,082 - INFO - Added market regime features.
+2025-03-26 13:44:15,883 - INFO - Market sentiment added: -0.06
+2025-03-26 13:44:15,883 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:44:15,898 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:44:15,910 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:44:15,912 - INFO - Training iteration: 9
+2025-03-26 13:45:01,978 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:45:16,319 - INFO - Added market regime features.
+2025-03-26 13:45:17,048 - INFO - Market sentiment added: -0.06
+2025-03-26 13:45:17,088 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:45:17,092 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:45:17,107 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:45:17,113 - INFO - Training iteration: 10
+2025-03-26 13:46:01,974 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:46:17,661 - INFO - Added market regime features.
+2025-03-26 13:46:18,693 - INFO - Market sentiment added: -0.06
+2025-03-26 13:46:18,693 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:46:18,693 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:46:18,715 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:46:18,720 - INFO - Training iteration: 11
+2025-03-26 13:47:01,984 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:47:19,108 - INFO - Added market regime features.
+2025-03-26 13:47:19,925 - INFO - Market sentiment added: -0.06
+2025-03-26 13:47:19,941 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:47:19,944 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:47:19,948 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:47:19,956 - INFO - Training iteration: 12
+2025-03-26 13:48:01,975 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:48:20,355 - INFO - Added market regime features.
+2025-03-26 13:48:21,238 - INFO - Market sentiment added: -0.06
+2025-03-26 13:48:21,276 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:48:21,278 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:48:21,290 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:48:21,293 - INFO - Training iteration: 13
+2025-03-26 13:49:01,986 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:49:21,635 - INFO - Added market regime features.
+2025-03-26 13:49:22,387 - INFO - Market sentiment added: -0.06
+2025-03-26 13:49:22,406 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:49:22,407 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:49:22,416 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:49:22,418 - INFO - Training iteration: 14
+2025-03-26 13:50:02,004 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:50:22,785 - INFO - Added market regime features.
+2025-03-26 13:50:23,466 - INFO - Market sentiment added: -0.06
+2025-03-26 13:50:23,482 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:50:23,482 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:50:23,493 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:50:23,499 - INFO - Training iteration: 15
+2025-03-26 13:51:02,025 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:51:23,863 - INFO - Added market regime features.
+2025-03-26 13:51:24,631 - INFO - Market sentiment added: -0.06
+2025-03-26 13:51:24,656 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:51:24,656 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:51:24,670 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:51:24,673 - INFO - Training iteration: 16
+2025-03-26 13:52:02,033 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:52:25,043 - INFO - Added market regime features.
+2025-03-26 13:52:25,795 - INFO - Market sentiment added: -0.06
+2025-03-26 13:52:25,814 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:52:25,815 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:52:25,833 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:52:25,837 - INFO - Training iteration: 17
+2025-03-26 13:53:02,045 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:53:26,194 - INFO - Added market regime features.
+2025-03-26 13:53:26,942 - INFO - Market sentiment added: -0.06
+2025-03-26 13:53:26,959 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:53:26,973 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:53:26,981 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:53:26,983 - INFO - Training iteration: 18
+2025-03-26 13:54:02,059 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:54:27,371 - INFO - Added market regime features.
+2025-03-26 13:54:28,237 - INFO - Market sentiment added: -0.06
+2025-03-26 13:54:28,237 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:54:28,237 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:54:28,255 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:54:28,258 - INFO - Training iteration: 19
+2025-03-26 13:55:02,068 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:55:28,624 - INFO - Added market regime features.
+2025-03-26 13:55:29,386 - INFO - Market sentiment added: -0.06
+2025-03-26 13:55:29,418 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:55:29,421 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:55:29,439 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:55:29,442 - INFO - Training iteration: 20
+2025-03-26 13:56:02,074 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:56:29,869 - INFO - Added market regime features.
+2025-03-26 13:56:30,648 - INFO - Market sentiment added: -0.06
+2025-03-26 13:56:30,648 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:56:30,648 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:56:30,669 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:56:30,672 - INFO - Training iteration: 21
+2025-03-26 13:57:02,072 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:57:31,132 - INFO - Added market regime features.
+2025-03-26 13:57:31,931 - INFO - Market sentiment added: -0.06
+2025-03-26 13:57:31,954 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:57:31,956 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:57:31,971 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:57:31,973 - INFO - Training iteration: 22
+2025-03-26 13:58:02,075 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:58:32,394 - INFO - Added market regime features.
+2025-03-26 13:58:33,530 - INFO - Market sentiment added: -0.06
+2025-03-26 13:58:33,541 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:58:33,544 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:58:33,557 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:58:33,560 - INFO - Training iteration: 23
+2025-03-26 13:59:02,090 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 13:59:33,974 - INFO - Added market regime features.
+2025-03-26 13:59:34,874 - INFO - Market sentiment added: -0.06
+2025-03-26 13:59:34,874 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 13:59:34,874 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 13:59:34,893 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 13:59:34,896 - INFO - Training iteration: 24
+2025-03-26 14:00:02,086 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:00:35,303 - INFO - Added market regime features.
+2025-03-26 14:00:36,073 - INFO - Market sentiment added: -0.06
+2025-03-26 14:00:36,106 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 14:00:36,107 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 14:00:36,117 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 14:00:36,120 - INFO - Training iteration: 25
+2025-03-26 14:01:02,091 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:01:36,535 - INFO - Added market regime features.
+2025-03-26 14:01:37,342 - INFO - Market sentiment added: -0.06
+2025-03-26 14:01:37,385 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 14:01:37,388 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 14:01:37,400 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 14:01:37,405 - INFO - Training iteration: 26
+2025-03-26 14:02:02,099 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:02:37,865 - INFO - Added market regime features.
+2025-03-26 14:02:38,800 - INFO - Market sentiment added: -0.06
+2025-03-26 14:02:38,833 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 14:02:38,836 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 14:02:38,864 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 14:02:38,867 - INFO - Training iteration: 27
+2025-03-26 14:03:02,114 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:03:39,261 - INFO - Added market regime features.
+2025-03-26 14:03:40,029 - INFO - Market sentiment added: -0.06
+2025-03-26 14:03:40,045 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 14:03:40,045 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 14:03:40,069 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 14:03:40,072 - INFO - Training iteration: 28
+2025-03-26 14:04:02,121 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:04:40,627 - INFO - Added market regime features.
+2025-03-26 14:04:41,577 - INFO - Market sentiment added: -0.06
+2025-03-26 14:04:41,601 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 14:04:41,603 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 14:04:41,613 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 14:04:41,616 - INFO - Training iteration: 29
+2025-03-26 14:05:02,123 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:05:42,114 - INFO - Added market regime features.
+2025-03-26 14:56:45,048 - INFO - Connecting to Deriv API...
+2025-03-26 14:56:47,977 - INFO - API authorized successfully.
+2025-03-26 14:56:48,724 - INFO - Updated balance: 10002.65 USDT; Fixed stake: 100.03 USDT
+2025-03-26 14:56:48,725 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:56:53,449 - INFO - Added market regime features.
+2025-03-26 14:56:56,281 - INFO - Market sentiment added: -0.06
+2025-03-26 14:56:56,281 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 14:56:56,299 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 14:56:56,317 - INFO - Initializing online model with partial_fit using advanced features.
+2025-03-26 14:56:56,325 - INFO - Training iteration: 1
+2025-03-26 14:57:48,730 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:57:57,529 - INFO - Added market regime features.
+2025-03-26 14:57:59,170 - INFO - Market sentiment added: -0.06
+2025-03-26 14:57:59,199 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 14:57:59,204 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 14:57:59,233 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 14:57:59,237 - INFO - Training iteration: 2
+2025-03-26 14:58:48,749 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 14:58:59,721 - INFO - Added market regime features.
+2025-03-26 14:59:00,517 - INFO - Market sentiment added: -0.06
+2025-03-26 14:59:00,532 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 14:59:00,535 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 14:59:00,554 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 14:59:00,559 - INFO - Training iteration: 3
+2025-03-26 14:59:48,760 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:00:00,956 - INFO - Added market regime features.
+2025-03-26 15:00:01,757 - INFO - Market sentiment added: -0.06
+2025-03-26 15:00:01,787 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:00:01,792 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:00:01,808 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:00:01,808 - INFO - Training iteration: 4
+2025-03-26 15:00:48,761 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:01:02,270 - INFO - Added market regime features.
+2025-03-26 15:01:03,123 - INFO - Market sentiment added: -0.06
+2025-03-26 15:01:03,123 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:01:03,138 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:01:03,147 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:01:03,148 - INFO - Training iteration: 5
+2025-03-26 15:01:48,754 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:02:03,504 - INFO - Added market regime features.
+2025-03-26 15:02:04,526 - INFO - Market sentiment added: -0.06
+2025-03-26 15:02:04,541 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:02:04,541 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:02:04,553 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:02:04,555 - INFO - Training iteration: 6
+2025-03-26 15:02:48,757 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:03:05,008 - INFO - Added market regime features.
+2025-03-26 15:03:05,880 - INFO - Market sentiment added: -0.06
+2025-03-26 15:03:05,880 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:03:05,895 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:03:05,907 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:03:05,909 - INFO - Training iteration: 7
+2025-03-26 15:03:48,782 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:04:06,296 - INFO - Added market regime features.
+2025-03-26 15:04:07,024 - INFO - Market sentiment added: -0.06
+2025-03-26 15:04:07,037 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:04:07,037 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:04:07,054 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:04:07,056 - INFO - Training iteration: 8
+2025-03-26 15:04:48,803 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:05:07,460 - INFO - Added market regime features.
+2025-03-26 15:05:08,197 - INFO - Market sentiment added: -0.06
+2025-03-26 15:05:08,213 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:05:08,213 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:05:08,232 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:05:08,234 - INFO - Training iteration: 9
+2025-03-26 15:05:48,814 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:06:08,591 - INFO - Added market regime features.
+2025-03-26 15:06:09,350 - INFO - Market sentiment added: -0.06
+2025-03-26 15:06:09,365 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:06:09,365 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:06:09,381 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:06:09,381 - INFO - Training iteration: 10
+2025-03-26 15:06:48,813 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:07:09,805 - INFO - Added market regime features.
+2025-03-26 15:07:10,736 - INFO - Market sentiment added: -0.06
+2025-03-26 15:07:10,736 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:07:10,747 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:07:10,757 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:07:10,759 - INFO - Training iteration: 11
+2025-03-26 15:07:48,821 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:08:11,168 - INFO - Added market regime features.
+2025-03-26 15:08:11,918 - INFO - Market sentiment added: -0.06
+2025-03-26 15:08:11,933 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:08:11,933 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:08:11,956 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:08:11,959 - INFO - Training iteration: 12
+2025-03-26 15:08:48,829 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:09:12,399 - INFO - Added market regime features.
+2025-03-26 15:09:13,119 - INFO - Market sentiment added: -0.06
+2025-03-26 15:09:13,119 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:09:13,119 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:09:13,139 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:09:13,141 - INFO - Training iteration: 13
+2025-03-26 15:09:48,834 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:10:13,512 - INFO - Added market regime features.
+2025-03-26 15:10:14,283 - INFO - Market sentiment added: -0.06
+2025-03-26 15:10:14,283 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:10:14,283 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:10:14,302 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:10:14,304 - INFO - Training iteration: 14
+2025-03-26 15:10:48,841 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:11:14,693 - INFO - Added market regime features.
+2025-03-26 15:11:15,430 - INFO - Market sentiment added: -0.06
+2025-03-26 15:11:15,430 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:11:15,430 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:11:15,451 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:11:15,453 - INFO - Training iteration: 15
+2025-03-26 15:11:48,850 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:12:15,824 - INFO - Added market regime features.
+2025-03-26 15:12:16,618 - INFO - Market sentiment added: -0.06
+2025-03-26 15:12:16,650 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:12:16,652 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:12:16,662 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:12:16,665 - INFO - Training iteration: 16
+2025-03-26 15:12:48,854 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:13:17,053 - INFO - Added market regime features.
+2025-03-26 15:13:17,783 - INFO - Market sentiment added: -0.06
+2025-03-26 15:13:17,798 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:13:17,814 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:13:17,828 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:13:17,830 - INFO - Training iteration: 17
+2025-03-26 15:13:48,862 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:14:18,255 - INFO - Added market regime features.
+2025-03-26 15:14:19,134 - INFO - Market sentiment added: -0.06
+2025-03-26 15:14:19,150 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:14:19,150 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:14:19,166 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:14:19,169 - INFO - Training iteration: 18
+2025-03-26 15:14:48,868 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:15:19,532 - INFO - Added market regime features.
+2025-03-26 15:15:20,232 - INFO - Market sentiment added: -0.06
+2025-03-26 15:15:20,248 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:15:20,248 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:15:20,268 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:15:20,270 - INFO - Training iteration: 19
+2025-03-26 15:15:48,872 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:16:20,629 - INFO - Added market regime features.
+2025-03-26 15:16:21,395 - INFO - Market sentiment added: -0.06
+2025-03-26 15:16:21,395 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:16:21,395 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:16:21,416 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:16:21,424 - INFO - Training iteration: 20
+2025-03-26 15:16:48,867 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:17:21,797 - INFO - Added market regime features.
+2025-03-26 15:17:22,653 - INFO - Market sentiment added: -0.06
+2025-03-26 15:17:22,719 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:17:22,721 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:17:22,747 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:17:22,747 - INFO - Training iteration: 21
+2025-03-26 15:17:48,886 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:18:23,139 - INFO - Added market regime features.
+2025-03-26 15:18:23,945 - INFO - Market sentiment added: -0.06
+2025-03-26 15:18:23,950 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:18:23,952 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:18:23,960 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:18:23,964 - INFO - Training iteration: 22
+2025-03-26 15:18:48,901 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:19:24,320 - INFO - Added market regime features.
+2025-03-26 15:19:25,053 - INFO - Market sentiment added: -0.06
+2025-03-26 15:19:25,053 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:19:25,053 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:19:25,072 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:19:25,075 - INFO - Training iteration: 23
+2025-03-26 15:19:48,905 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:20:25,434 - INFO - Added market regime features.
+2025-03-26 15:20:26,167 - INFO - Market sentiment added: -0.06
+2025-03-26 15:20:26,206 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:20:26,208 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:20:26,234 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:20:26,239 - INFO - Training iteration: 24
+2025-03-26 15:20:48,912 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:21:26,680 - INFO - Added market regime features.
+2025-03-26 15:21:33,671 - INFO - Market sentiment added: -0.06
+2025-03-26 15:21:33,693 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:21:33,695 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:21:33,698 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:21:33,707 - INFO - Training iteration: 25
+2025-03-26 15:21:48,920 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:22:34,110 - INFO - Added market regime features.
+2025-03-26 15:22:35,020 - INFO - Market sentiment added: -0.06
+2025-03-26 15:22:35,038 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:22:35,040 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:22:35,069 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:22:35,072 - INFO - Training iteration: 26
+2025-03-26 15:22:48,917 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:23:35,459 - INFO - Added market regime features.
+2025-03-26 15:23:36,175 - INFO - Market sentiment added: -0.06
+2025-03-26 15:23:36,192 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:23:36,195 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:23:36,206 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:23:36,210 - INFO - Training iteration: 27
+2025-03-26 15:23:48,945 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:24:36,712 - INFO - Added market regime features.
+2025-03-26 15:24:37,526 - INFO - Market sentiment added: -0.06
+2025-03-26 15:24:37,565 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:24:37,565 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:24:37,584 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:24:37,586 - INFO - Training iteration: 28
+2025-03-26 15:24:48,954 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:25:38,286 - INFO - Added market regime features.
+2025-03-26 15:25:44,388 - INFO - Market sentiment added: -0.06
+2025-03-26 15:25:44,394 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:25:44,395 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:25:44,408 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:25:44,412 - INFO - Training iteration: 29
+2025-03-26 15:25:48,952 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:26:45,653 - INFO - Added market regime features.
+2025-03-26 15:26:49,697 - INFO - Market sentiment added: -0.06
+2025-03-26 15:26:49,709 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:26:49,711 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:26:49,727 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:26:49,730 - INFO - Training iteration: 30
+2025-03-26 15:26:49,735 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:27:50,617 - INFO - Added market regime features.
+2025-03-26 15:27:55,139 - INFO - Market sentiment added: -0.06
+2025-03-26 15:27:55,161 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:27:55,165 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:27:55,176 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:27:55,179 - INFO - Training iteration: 31
+2025-03-26 15:27:55,181 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:29:03,635 - INFO - Added market regime features.
+2025-03-26 15:29:05,786 - INFO - Market sentiment added: -0.06
+2025-03-26 15:29:05,808 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 15:29:05,810 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 15:29:05,827 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 15:29:05,831 - INFO - Training iteration: 32
+2025-03-26 15:29:05,832 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 15:30:07,541 - INFO - Added market regime features.
+2025-03-26 17:13:35,318 - INFO - Connecting to Deriv API...
+2025-03-26 17:13:40,281 - INFO - API authorized successfully.
+2025-03-26 17:13:40,542 - INFO - Updated balance: 10002.65 USDT; Fixed stake: 100.03 USDT
+2025-03-26 17:13:40,542 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:13:46,384 - INFO - Added market regime features.
+2025-03-26 17:13:48,367 - INFO - Market sentiment added: -0.06
+2025-03-26 17:13:48,394 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:13:48,400 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:13:48,416 - INFO - Initializing online model with partial_fit using advanced features.
+2025-03-26 17:13:48,416 - INFO - Training iteration: 1
+2025-03-26 17:14:40,572 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:14:48,764 - INFO - Added market regime features.
+2025-03-26 17:14:49,599 - INFO - Market sentiment added: -0.06
+2025-03-26 17:14:49,622 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:14:49,630 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:14:49,642 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:14:49,650 - INFO - Training iteration: 2
+2025-03-26 17:15:40,571 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:15:50,061 - INFO - Added market regime features.
+2025-03-26 17:15:51,046 - INFO - Market sentiment added: -0.06
+2025-03-26 17:15:51,067 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:15:51,076 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:15:51,089 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:15:51,089 - INFO - Training iteration: 3
+2025-03-26 17:16:40,584 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:16:51,508 - INFO - Added market regime features.
+2025-03-26 17:16:52,260 - INFO - Market sentiment added: -0.06
+2025-03-26 17:16:52,281 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:16:52,281 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:16:52,298 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:16:52,304 - INFO - Training iteration: 4
+2025-03-26 17:17:40,602 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:17:52,654 - INFO - Added market regime features.
+2025-03-26 17:17:54,430 - INFO - Market sentiment added: -0.06
+2025-03-26 17:17:54,461 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:17:54,463 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:17:54,480 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:17:54,480 - INFO - Training iteration: 5
+2025-03-26 17:18:40,601 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:18:54,824 - INFO - Added market regime features.
+2025-03-26 17:18:56,641 - INFO - Market sentiment added: -0.06
+2025-03-26 17:18:56,656 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:18:56,656 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:18:56,665 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:18:56,676 - INFO - Training iteration: 6
+2025-03-26 17:19:40,597 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:19:57,052 - INFO - Added market regime features.
+2025-03-26 17:19:57,844 - INFO - Market sentiment added: -0.06
+2025-03-26 17:19:57,852 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:19:57,852 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:19:57,868 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:19:57,876 - INFO - Training iteration: 7
+2025-03-26 17:20:40,604 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:20:58,247 - INFO - Added market regime features.
+2025-03-26 17:20:58,985 - INFO - Market sentiment added: -0.06
+2025-03-26 17:20:59,001 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:20:59,016 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:20:59,026 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:20:59,030 - INFO - Training iteration: 8
+2025-03-26 17:21:40,604 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:21:59,353 - INFO - Added market regime features.
+2025-03-26 17:22:00,143 - INFO - Market sentiment added: -0.06
+2025-03-26 17:22:00,163 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:22:00,171 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:22:00,186 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:22:00,194 - INFO - Training iteration: 9
+2025-03-26 17:22:40,607 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:23:00,578 - INFO - Added market regime features.
+2025-03-26 17:23:01,409 - INFO - Market sentiment added: -0.06
+2025-03-26 17:23:01,439 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:23:01,439 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:23:01,449 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:23:01,460 - INFO - Training iteration: 10
+2025-03-26 17:23:40,611 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:24:01,822 - INFO - Added market regime features.
+2025-03-26 17:24:03,971 - INFO - Market sentiment added: -0.06
+2025-03-26 17:24:03,971 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:24:03,979 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:24:03,987 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:24:03,993 - INFO - Training iteration: 11
+2025-03-26 17:24:40,614 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:25:04,319 - INFO - Added market regime features.
+2025-03-26 17:25:05,129 - INFO - Market sentiment added: -0.06
+2025-03-26 17:25:05,129 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:25:05,129 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:25:05,156 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:25:05,156 - INFO - Training iteration: 12
+2025-03-26 17:25:40,621 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:26:05,482 - INFO - Added market regime features.
+2025-03-26 17:26:06,164 - INFO - Market sentiment added: -0.06
+2025-03-26 17:26:06,164 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:26:06,164 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:26:06,182 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:26:06,189 - INFO - Training iteration: 13
+2025-03-26 17:26:40,629 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:27:06,510 - INFO - Added market regime features.
+2025-03-26 17:27:07,284 - INFO - Market sentiment added: -0.06
+2025-03-26 17:27:07,284 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:27:07,284 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:27:07,302 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:27:07,310 - INFO - Training iteration: 14
+2025-03-26 17:27:40,635 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:28:07,674 - INFO - Added market regime features.
+2025-03-26 17:28:11,460 - INFO - Market sentiment added: -0.06
+2025-03-26 17:28:11,494 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:28:11,498 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:28:11,511 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:28:11,511 - INFO - Training iteration: 15
+2025-03-26 17:28:40,644 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:29:11,874 - INFO - Added market regime features.
+2025-03-26 17:29:13,919 - INFO - Market sentiment added: -0.06
+2025-03-26 17:29:13,938 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:29:13,938 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:29:13,955 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:29:13,955 - INFO - Training iteration: 16
+2025-03-26 17:29:40,653 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:30:14,437 - INFO - Added market regime features.
+2025-03-26 17:30:15,353 - INFO - Market sentiment added: -0.06
+2025-03-26 17:30:15,370 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:30:15,370 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:30:15,384 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:30:15,384 - INFO - Training iteration: 17
+2025-03-26 17:30:40,644 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:31:15,901 - INFO - Added market regime features.
+2025-03-26 17:31:16,913 - INFO - Market sentiment added: -0.06
+2025-03-26 17:31:16,945 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:31:16,956 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:31:16,978 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:31:16,985 - INFO - Training iteration: 18
+2025-03-26 17:31:40,663 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:32:17,368 - INFO - Added market regime features.
+2025-03-26 17:32:18,135 - INFO - Market sentiment added: -0.06
+2025-03-26 17:32:18,151 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:32:18,156 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:32:18,189 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:32:18,196 - INFO - Training iteration: 19
+2025-03-26 17:32:40,677 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:33:18,953 - INFO - Added market regime features.
+2025-03-26 17:33:21,011 - INFO - Market sentiment added: -0.06
+2025-03-26 17:33:21,054 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:33:21,076 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:33:21,182 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:33:21,195 - INFO - Training iteration: 20
+2025-03-26 17:33:40,683 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:34:21,623 - INFO - Added market regime features.
+2025-03-26 17:34:23,816 - INFO - Market sentiment added: -0.06
+2025-03-26 17:34:23,865 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:34:23,874 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:34:23,962 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:34:23,975 - INFO - Training iteration: 21
+2025-03-26 17:34:40,681 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:35:24,524 - INFO - Added market regime features.
+2025-03-26 17:35:25,528 - INFO - Market sentiment added: -0.06
+2025-03-26 17:35:25,574 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:35:25,581 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:35:25,657 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:35:25,664 - INFO - Training iteration: 22
+2025-03-26 17:35:40,703 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:36:26,245 - INFO - Added market regime features.
+2025-03-26 17:36:27,093 - INFO - Market sentiment added: -0.06
+2025-03-26 17:36:27,158 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:36:27,191 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:36:27,259 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:36:27,264 - INFO - Training iteration: 23
+2025-03-26 17:36:40,734 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:37:27,948 - INFO - Added market regime features.
+2025-03-26 17:37:28,813 - INFO - Market sentiment added: -0.06
+2025-03-26 17:37:28,843 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:37:28,851 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:37:28,940 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:37:28,944 - INFO - Training iteration: 24
+2025-03-26 17:37:40,749 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:38:29,653 - INFO - Added market regime features.
+2025-03-26 17:38:30,357 - INFO - Market sentiment added: -0.06
+2025-03-26 17:38:30,371 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:38:30,372 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:38:30,388 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:38:30,388 - INFO - Training iteration: 25
+2025-03-26 17:38:40,767 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:39:30,968 - INFO - Added market regime features.
+2025-03-26 17:39:31,881 - INFO - Market sentiment added: -0.06
+2025-03-26 17:39:31,889 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:39:31,893 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:39:31,908 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:39:31,915 - INFO - Training iteration: 26
+2025-03-26 17:39:40,769 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:40:32,752 - INFO - Added market regime features.
+2025-03-26 17:40:33,513 - INFO - Market sentiment added: -0.06
+2025-03-26 17:40:33,523 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:40:33,523 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:40:33,543 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:40:33,552 - INFO - Training iteration: 27
+2025-03-26 17:40:40,780 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 17:41:34,160 - INFO - Added market regime features.
+2025-03-26 17:41:34,846 - INFO - Market sentiment added: -0.06
+2025-03-26 17:41:34,907 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 17:41:34,912 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 17:41:34,932 - INFO - Updating online model with new data using partial_fit on advanced features.
+2025-03-26 17:41:34,937 - INFO - Training iteration: 28
+2025-03-26 17:41:40,792 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 18:37:32,785 - INFO - Connecting to Deriv API...
+2025-03-26 18:37:34,871 - INFO - API authorized successfully.
+2025-03-26 18:37:35,292 - INFO - Updated balance: 10002.65 USDT; Fixed stake: 100.03 USDT
+2025-03-26 18:37:35,292 - INFO - Model warming up. Waiting for sufficient training iterations before trading...
+2025-03-26 18:37:38,171 - INFO - Added market regime features.
+2025-03-26 18:37:39,467 - INFO - Market sentiment added: -0.06
+2025-03-26 18:37:39,482 - INFO - Data preprocessing complete with enhanced features.
+2025-03-26 18:37:39,482 - INFO - Calibrated parameters for frxEURUSD: vol_threshold=0.008, confidence_threshold=0.55
+2025-03-26 18:37:39,552 - INFO - Initializing online model with partial_fit using advanced features.
+2025-03-26 18:37:39,566 - INFO - Training iteration: 1

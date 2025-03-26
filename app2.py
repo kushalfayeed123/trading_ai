@@ -9,8 +9,7 @@ import yfinance as yf
 import ta
 from ta.trend import ADXIndicator, MACD
 from ta.momentum import StochasticOscillator, RSIIndicator, ROCIndicator
-from sklearn.linear_model import SGDClassifier
-from sklearn.kernel_approximation import RBFSampler
+from sklearn.linear_model import PassiveAggressiveClassifier
 from sklearn.preprocessing import StandardScaler
 from deriv_api import DerivAPI  # Ensure you have the latest Deriv API package
 from datetime import datetime
@@ -22,7 +21,9 @@ import requests
 import os
 from dotenv import load_dotenv
 
+
 nest_asyncio.apply()
+
 load_dotenv()  # load variables from .env file
 
 api_token = os.environ.get("API_TOKEN")
@@ -31,13 +32,18 @@ app_id = os.environ.get("APP_ID")
 trading_enabled = False
 bot_instance = None
 notification_msg = ""
+MIN_CONFIDENCE_THRESHOLD = 0.4  # adjust this value based on backtesting
 
-# Global feature columns (feel free to add more as you experiment)
+
+# ------------------------------
+# Global Definitions
+# ------------------------------
 FEATURE_COLS = [
     'rsi', 'macd', 'macd_hist', 'bollinger_hband', 'bollinger_lband',
     'atr', 'adx', 'ma_20', 'std_20', 'volatility_ratio', 'sentiment',
     'stoch_k', 'stoch_d', 'rsi_diff', 'roc', 'ma_diff', 'regime'
 ]
+
 
 def safe_indicator_output(ind_val, index):
     try:
@@ -49,9 +55,11 @@ def safe_indicator_output(ind_val, index):
         logger.error(f"safe_indicator_output error: {e}")
         return pd.Series(np.zeros(len(index)), index=index)
 
+
 def fetch_market_sentiment():
     """
     Fetch a market sentiment score from an external API.
+    This example uses Alternative.me's Fear & Greed Index.
     Returns a normalized sentiment between -1 (extreme fear) and 1 (extreme greed).
     """
     try:
@@ -66,6 +74,11 @@ def fetch_market_sentiment():
     except Exception as e:
         logger.error(f"Error fetching market sentiment: {e}")
         return 0.0
+
+# ------------------------------
+# Logger Setup
+# ------------------------------
+
 
 def setup_logger(name: str, log_file: str, level=logging.DEBUG):
     logger = logging.getLogger(name)
@@ -84,10 +97,15 @@ def setup_logger(name: str, log_file: str, level=logging.DEBUG):
         logger.addHandler(file_handler)
     return logger
 
+
 logger = setup_logger("EnhancedTradingBot", "enhanced_trading_bot.log")
 
+# ------------------------------
+# Flask App Initialization
+# ------------------------------
 app = Flask(__name__)
 CORS(app)
+
 
 @app.route("/start", methods=["POST"])
 def start_trading():
@@ -97,12 +115,14 @@ def start_trading():
     logger.info("Trading manually started via web interface.")
     return jsonify({"status": "Trading started"}), 200
 
+
 @app.route("/stop", methods=["POST"])
 def stop_trading():
     global trading_enabled
     trading_enabled = False
     logger.info("Trading manually stopped via web interface.")
     return jsonify({"status": "Trading stopped"}), 200
+
 
 @app.route("/set_duration", methods=["POST"])
 def set_duration():
@@ -116,6 +136,7 @@ def set_duration():
     else:
         return jsonify({"error": "No duration provided"}), 400
 
+
 @app.route("/set_symbol", methods=["POST"])
 def set_symbol():
     global bot_instance
@@ -127,6 +148,7 @@ def set_symbol():
         return jsonify({"status": "Trading symbol updated", "symbol": new_symbol}), 200
     else:
         return jsonify({"error": "No symbol provided"}), 400
+
 
 @app.route("/market_data", methods=["GET"])
 def market_data():
@@ -143,6 +165,7 @@ def market_data():
                     "count": 1440,
                     "end": "latest",
                     "granularity": 60,
+                    # Omit "style" so the API returns its default tick data
                 }
                 try:
                     response = await bot_instance.api.send(req)
@@ -153,6 +176,7 @@ def market_data():
                             "Datetime": pd.to_datetime(response["history"]["times"], unit="s"),
                             "Price": response["history"]["prices"]
                         })
+                        # Set datetime as index
                         df.set_index("Datetime", inplace=True)
                         return df
                     else:
@@ -165,11 +189,14 @@ def market_data():
         else:
             df = yf.download(symbol, period="1d", interval=interval, auto_adjust=True)
         df.reset_index(inplace=True)
+        # Standardize column names
         df.columns = ['_'.join(map(str, col)) if isinstance(col, tuple) else str(col) for col in df.columns]
         data = df.to_dict(orient="records")
         return jsonify({"data": data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 @app.route("/status", methods=["GET"])
 def status():
@@ -186,32 +213,59 @@ def status():
     }
     return jsonify(status_data)
 
+
 @app.route("/notification", methods=["GET"])
 def notification():
     return jsonify({"notification": notification_msg})
 
+
 def detect_support_resistance(df, short_window=50, long_window=200):
+    """Identify dynamic support and resistance levels based on the Price column."""
     if len(df) < long_window:
-        return None, None
+        return None, None  # Not enough data
+    # Use the "Price" column from your raw API response (for Boom1000/Crash1000)
     df["rolling_min"] = df["price"].rolling(window=short_window).min()
     df["rolling_max"] = df["price"].rolling(window=short_window).max()
+
     short_support = df["rolling_min"].iloc[-1]
     short_resistance = df["rolling_max"].iloc[-1]
+
     long_support = df["price"].rolling(window=long_window).min().iloc[-1]
     long_resistance = df["price"].rolling(window=long_window).max().iloc[-1]
+
     return (short_support, short_resistance), (long_support, long_resistance)
 
 def sophisticated_support_resistance(df, window=10, tolerance=0.002):
+    """
+    Calculate support and resistance levels using local swing points and clustering.
+    
+    For synthetic indices (e.g. Boom1000/Crash1000), the DataFrame is expected to have a "price" column.
+    For other symbols (from yfinance), it will use the "close" column.
+    
+    Parameters:
+      df (DataFrame): Must include either a column "price" or "close".
+      window (int): Look-back window to detect swing lows and highs.
+      tolerance (float): Fractional tolerance for clustering levels (e.g., 0.002 = 0.2%).
+      
+    Returns:
+      support (float): The strongest support level (average of the largest cluster of swing lows).
+      resistance (float): The strongest resistance level (average of the largest cluster of swing highs).
+    """
     logger.info(f"DataFrame columns: {df.columns.tolist()}")
+    
+    # Determine the appropriate column for price data.
     if "price" in df.columns:
         price_col = "price"
     elif "close" in df.columns:
         price_col = "close"
     else:
         raise KeyError("Expected 'price' or 'close' column not found in DataFrame")
+    
     prices = df[price_col].values
     swing_lows = []
     swing_highs = []
+    
+    # Identify swing lows and swing highs using a sliding window.
     for i in range(window, len(prices) - window):
         window_slice = prices[i - window: i + window + 1]
         current = prices[i]
@@ -219,8 +273,11 @@ def sophisticated_support_resistance(df, window=10, tolerance=0.002):
             swing_lows.append(current)
         if current == window_slice.max():
             swing_highs.append(current)
+    
     if not swing_lows or not swing_highs:
         return None, None
+    
+    # Cluster swing lows.
     swing_lows.sort()
     clusters_low = []
     current_cluster = [swing_lows[0]]
@@ -232,6 +289,8 @@ def sophisticated_support_resistance(df, window=10, tolerance=0.002):
             current_cluster = [price]
     clusters_low.append(current_cluster)
     support = np.mean(max(clusters_low, key=len))
+    
+    # Cluster swing highs.
     swing_highs.sort(reverse=True)
     clusters_high = []
     current_cluster = [swing_highs[0]]
@@ -243,17 +302,32 @@ def sophisticated_support_resistance(df, window=10, tolerance=0.002):
             current_cluster = [price]
     clusters_high.append(current_cluster)
     resistance = np.mean(max(clusters_high, key=len))
+    
     return support, resistance
 
+
+
 def should_trade(price, trade_signal, short_sr, long_sr):
+    """Validate trade signal based on support/resistance levels.
+       For a CALL, require price to be at or near support.
+       For a PUT, require price to be at or near resistance.
+    """
+    # Example buffer values: adjust these thresholds to your liking
     buffer_ratio = 0.005  # 0.5% buffer
     if trade_signal == "CALL":
+        # Allow trade if price is within buffer above short-term support
         if price <= short_sr * (1 + buffer_ratio):
             return True
     elif trade_signal == "PUT":
+        # Allow trade if price is within buffer below short-term resistance
         if price >= short_sr * (1 - buffer_ratio):
             return True
     return False
+
+# ------------------------------
+# Trading Bot Class with Enhancements
+# ------------------------------
+
 
 class DerivTradingBot:
     def __init__(self, app_id: str, api_token: str, training_symbol: str = "frxEURUSD", contract_duration: int = 30):
@@ -270,63 +344,66 @@ class DerivTradingBot:
         self.min_stake = 0.50
         self.max_stake = 1
 
+        # Hysteresis to avoid rapid alternating trades
         self.current_position = None  # 1 for CALL, 0 for PUT
         self.hysteresis_margin = 0.1
 
+        # Training warmup variables
         self.training_iterations = 0
         self.MIN_TRAINING_CYCLES = 50
 
+        # For feature scaling
         self.scaler = None
 
+        # Experience replay for live trades
         self.experience_buffer = []
         self.last_trade_state = None
         self.last_trade_action = None
 
+        # Define training window and retrain frequency
         self.train_window = 1000
         self.retrain_freq = 60  # seconds
 
+        # Tracking trade cycles and cumulative PnL for status reporting
         self.cycle_count = 0
         self.cumulative_pnl = 0.0
         self.consecutive_loss_count = 0
         self.trade_history = []
         self.last_trade_record = None
 
-        # Advanced model using kernel approximation for non-linearity
-        self.use_advanced_model = True
-        if self.use_advanced_model:
-            self.rbf_sampler = RBFSampler(gamma=1, random_state=42)
-            self.ml_model = SGDClassifier(loss='hinge', alpha=0.001, max_iter=1000, tol=1e-3)
-            self.model_initialized = False
-        else:
-            from sklearn.linear_model import PassiveAggressiveClassifier
-            self.ml_model = PassiveAggressiveClassifier(max_iter=1000, tol=1e-3, C=1.0)
-            self.model_initialized = True
+        # In your DerivTradingBot __init__, increase MIN_TRAINING_CYCLES:
 
-    def transform_features(self, X):
-        if self.use_advanced_model:
-            if not hasattr(self, 'rbf_fitted'):
-                self.rbf_sampler.fit(X)
-                self.rbf_fitted = True
-            return self.rbf_sampler.transform(X)
-        else:
-            return X
+        # Define a minimum acceptable confidence threshold
 
+        # Robust ML model: PassiveAggressiveClassifier for online learning
+        self.ml_model = PassiveAggressiveClassifier(
+            max_iter=1000, tol=1e-3, C=1.0)
+        
     def predict_trade_signal(self, df):
+        """
+        Predict trade signal using the AI model.
+        Expects df to contain all features except the raw Price.
+        """
         try:
+            # Drop the "Price" column from features (if present)
             features = df.iloc[-1:].drop(columns=["Price"], errors="ignore")
             if self.scaler is None:
                 return "NEUTRAL"
             features_scaled = self.scaler.transform(features)
-            features_transformed = self.transform_features(features_scaled)
-            prediction = self.ml_model.predict(features_transformed)[0]
+            prediction = self.ml_model.predict(features_scaled)[0]
             return "CALL" if prediction == 1 else "PUT"
         except Exception as e:
             self.logger.error(f"Error in predict_trade_signal: {e}")
             return "NEUTRAL"
 
+
+    # ------------------------------
+    # Add Regime Feature
+    # ------------------------------
     def add_regime_features(self, df):
         try:
-            df['long_ma'] = df['close'].rolling(window=200, min_periods=50).mean()
+            df['long_ma'] = df['close'].rolling(
+                window=200, min_periods=50).mean()
             df['regime'] = np.where(df['close'] > df['long_ma'], 1, 0)
             self.logger.info("Added market regime features.")
             return df
@@ -334,15 +411,23 @@ class DerivTradingBot:
             self.logger.error(f"Error adding regime features: {e}")
             return df
 
+    # ------------------------------
+    # Preprocess Data as a Class Method
+    # ------------------------------
     def preprocess_data(self, df):
         try:
+            # Standardize column names
             df.columns = [('_'.join(map(str, col)) if isinstance(col, tuple) else str(col)).lower().rstrip('_') for col in df.columns]
             if not isinstance(df.index, pd.DatetimeIndex):
                 df.reset_index(inplace=True)
                 if 'datetime' in df.columns and pd.api.types.is_datetime64_any_dtype(df['datetime']):
                     df.set_index('datetime', inplace=True)
+            
+            # For Boom1000/Crash1000, our data only has "price" so we need to create OHLC columns.
             if self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
                 if "price" in df.columns:
+                    # Create OHLC columns by copying Price. 
+                    # (This is a simplification; you may want to use a more sophisticated method.)
                     df["close"] = df["price"]
                     df["open"] = df["price"]
                     df["high"] = df["price"]
@@ -351,6 +436,7 @@ class DerivTradingBot:
                     self.logger.error("Expected 'price' column not found in tick data.")
                     raise KeyError("Missing price column for synthetic indices")
             else:
+                # For other symbols, find and rename price columns.
                 def find_and_rename_price_columns(df):
                     def find_column(target):
                         for col in df.columns:
@@ -366,45 +452,62 @@ class DerivTradingBot:
                     df.rename(columns={close_col: "close", high_col: "high", low_col: "low"}, inplace=True)
                     return df
                 df = find_and_rename_price_columns(df)
+            
+            # Ensure the OHLC columns exist now.
             for col in ['close', 'high', 'low']:
                 df[col] = pd.Series(df[col].values.ravel(), index=df.index)
+
             close_series = df['close']
             high_series = df['high']
             low_series = df['low']
+
+            # Calculate technical indicators
             rsi_values = RSIIndicator(close_series, window=14, fillna=True).rsi().to_numpy().ravel()
             df['rsi'] = pd.Series(rsi_values, index=df.index[-len(rsi_values):])
+            
             macd_obj = MACD(close_series, fillna=True)
             macd_values = macd_obj.macd().to_numpy().ravel()
             df['macd'] = pd.Series(macd_values, index=df.index[-len(macd_values):])
             macd_hist_values = macd_obj.macd_diff().to_numpy().ravel()
             df['macd_hist'] = pd.Series(macd_hist_values, index=df.index[-len(macd_hist_values):])
+            
             bb = ta.volatility.BollingerBands(close_series, fillna=True)
             df['bollinger_hband'] = pd.Series(bb.bollinger_hband().to_numpy().ravel(), index=df.index[-len(rsi_values):])
             df['bollinger_lband'] = pd.Series(bb.bollinger_lband().to_numpy().ravel(), index=df.index[-len(rsi_values):])
+            
             stoch = StochasticOscillator(high_series, low_series, close_series, window=14, smooth_window=3, fillna=True)
             stoch_k = stoch.stoch().to_numpy().ravel()
             stoch_d = stoch.stoch_signal().to_numpy().ravel()
             df['stoch_k'] = pd.Series(stoch_k, index=df.index[-len(stoch_k):])
             df['stoch_d'] = pd.Series(stoch_d, index=df.index[-len(stoch_d):])
+            
             rsi_diff = np.diff(rsi_values, prepend=rsi_values[0])
             df['rsi_diff'] = pd.Series(rsi_diff, index=df.index[-len(rsi_diff):])
+            
             roc_values = ROCIndicator(close_series, window=12, fillna=True).roc().to_numpy().ravel()
             df['roc'] = pd.Series(roc_values, index=df.index[-len(roc_values):])
+            
             df['ma_20'] = df['close'].rolling(window=20).mean()
             df['ma_50'] = df['close'].rolling(window=50).mean()
             df['ma_diff'] = df['ma_20'] - df['ma_50']
             df['std_20'] = df['close'].rolling(window=20).std()
             df['volatility_ratio'] = df['std_20'] / df['ma_20']
+            
             atr_obj = ta.volatility.AverageTrueRange(high_series, low_series, close_series, window=14, fillna=True)
             atr_raw = atr_obj.average_true_range()
             atr_values = safe_indicator_output(atr_raw, df.index)
             df['atr'] = atr_values
+            
             adx_obj = ADXIndicator(high_series, low_series, close_series, window=14, fillna=True)
             adx_raw = adx_obj.adx()
             adx_values = safe_indicator_output(adx_raw, df.index)
             df['adx'] = adx_values
+            
+            # Add regime feature (if applicable)
             df = self.add_regime_features(df)
+            # Incorporate additional features (e.g., market sentiment)
             df = self.get_additional_features(df)
+            
             df.dropna(inplace=True)
             df['future_return'] = df['close'].shift(-1) - df['close']
             df['direction'] = np.where(df['future_return'] > (0.0001 * df['close']), 1,
@@ -416,6 +519,10 @@ class DerivTradingBot:
             self.logger.error(f"Error in data preprocessing: {e}")
             return None
 
+
+    # ------------------------------
+    # Additional Features: Market Sentiment Integration
+    # ------------------------------
     def get_additional_features(self, df):
         try:
             sentiment = fetch_market_sentiment()
@@ -426,13 +533,17 @@ class DerivTradingBot:
             self.logger.error(f"Error adding additional features: {e}")
             return df
 
+    # ------------------------------
+    # Training Loop: Model Updating with Experience Replay
+    # ------------------------------
     async def training_loop(self):
         while True:
             df_train = await self.fetch_historical_data(count=self.train_window, granularity=60)
             if df_train is not None and not df_train.empty:
                 df_train = self.preprocess_data(df_train)
                 if df_train is None or df_train.empty:
-                    self.logger.warning("Preprocessed training data empty; skipping update.")
+                    self.logger.warning(
+                        "Preprocessed training data empty; skipping update.")
                 else:
                     self.calibrate_asset_parameters(df_train)
                     X_train = df_train[FEATURE_COLS]
@@ -440,52 +551,68 @@ class DerivTradingBot:
                     scaler = StandardScaler()
                     X_train_scaled = scaler.fit_transform(X_train)
                     self.scaler = scaler
-                    X_train_transformed = self.transform_features(X_train_scaled)
                     try:
-                        if not self.model_initialized:
-                            self.logger.info("Initializing online model with partial_fit using advanced features.")
-                            self.ml_model.partial_fit(X_train_transformed, y_train, classes=[0, 1])
-                            self.model_initialized = True
+                        if not hasattr(self.ml_model, "classes_"):
+                            self.logger.info(
+                                "Initializing online model with partial_fit using scaled features.")
+                            self.ml_model.partial_fit(
+                                X_train_scaled, y_train, classes=[0, 1])
                         else:
-                            self.logger.info("Updating online model with new data using partial_fit on advanced features.")
-                            self.ml_model.partial_fit(X_train_transformed, y_train)
+                            self.logger.info(
+                                "Updating online model with new data using partial_fit on scaled features.")
+                            self.ml_model.partial_fit(X_train_scaled, y_train)
                         self.training_iterations += 1
-                        self.logger.info(f"Training iteration: {self.training_iterations}")
+                        self.logger.info(
+                            f"Training iteration: {self.training_iterations}")
                     except Exception as e:
                         self.logger.error(f"Error during model update: {e}")
             else:
-                self.logger.error("Failed to fetch training data for model update.")
+                self.logger.error(
+                    "Failed to fetch training data for model update.")
 
             if self.experience_buffer:
                 try:
-                    X_exp = np.vstack([exp[0] for exp in self.experience_buffer])
-                    y_exp = np.array([exp[1] for exp in self.experience_buffer])
-                    self.logger.info(f"Updating model with {len(y_exp)} live trade experiences.")
+                    X_exp = np.vstack([exp[0]
+                                      for exp in self.experience_buffer])
+                    y_exp = np.array([exp[1]
+                                     for exp in self.experience_buffer])
+                    self.logger.info(
+                        f"Updating model with {len(y_exp)} live trade experiences.")
                     self.ml_model.partial_fit(X_exp, y_exp)
                     self.experience_buffer.clear()
                 except Exception as e:
-                    self.logger.error(f"Error updating model with live experiences: {e}")
+                    self.logger.error(
+                        f"Error updating model with live experiences: {e}")
 
             await asyncio.sleep(self.retrain_freq)
 
+    # ------------------------------
+    # Risk Calibration (e.g., volatility-based thresholds)
+    # ------------------------------
     def calibrate_asset_parameters(self, df):
         try:
             avg_atr = df['atr'].mean()
             avg_price = df['close'].mean()
             computed_vol_ratio = avg_atr / avg_price if avg_price != 0 else 0.01
             if self.training_symbol.lower().startswith("frx"):
-                self.vol_threshold = max(0.008, min(0.015, computed_vol_ratio * 1.0))
+                self.vol_threshold = max(0.008, min(
+                    0.015, computed_vol_ratio * 1.0))
                 self.confidence_threshold = 0.55
             elif self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
-                self.vol_threshold = max(0.015, min(0.03, computed_vol_ratio * 1.5))
+                self.vol_threshold = max(0.015, min(
+                    0.03, computed_vol_ratio * 1.5))
                 self.confidence_threshold = 0.45
             else:
                 self.vol_threshold = computed_vol_ratio * 1.0
                 self.confidence_threshold = 0.55
-            self.logger.info(f"Calibrated parameters for {self.training_symbol}: vol_threshold={self.vol_threshold:.3f}, confidence_threshold={self.confidence_threshold:.2f}")
+            self.logger.info(
+                f"Calibrated parameters for {self.training_symbol}: vol_threshold={self.vol_threshold:.3f}, confidence_threshold={self.confidence_threshold:.2f}")
         except Exception as e:
             self.logger.error(f"Error calibrating asset parameters: {e}")
 
+    # ------------------------------
+    # Evaluate and Trade: Making Predictions and Executing Trades
+    # ------------------------------
     async def evaluate_and_trade(self):
         self.cycle_count += 1
         cycle_record = {
@@ -498,7 +625,7 @@ class DerivTradingBot:
 
         if self.training_iterations < self.MIN_TRAINING_CYCLES:
             cycle_record["decision"] = "NEUTRAL"
-            cycle_record["note"] = f"Model warming up (iterations: {self.training_iterations}). Skipping trade."
+            cycle_record["note"] = f"Model not calibrated (iterations: {self.training_iterations}). Skipping trade."
             self.trade_history.append(cycle_record)
             self.logger.info("Skipping trade: insufficient training iterations.")
             return
@@ -530,17 +657,16 @@ class DerivTradingBot:
         latest_features = df_latest.iloc[-1:][FEATURE_COLS]
         try:
             latest_features_scaled = self.scaler.transform(latest_features)
-            latest_features_transformed = self.transform_features(latest_features_scaled)
         except Exception as e:
             cycle_record["decision"] = "SKIP"
-            cycle_record["note"] = f"Error scaling/transforming features: {e}"
+            cycle_record["note"] = f"Error scaling features: {e}"
             self.trade_history.append(cycle_record)
-            self.logger.error(f"Error during feature transformation: {e}")
+            self.logger.error(f"Error scaling features during evaluation: {e}")
             return
 
         try:
-            prediction = self.ml_model.predict(latest_features_transformed)[0]
-            decision_score = self.ml_model.decision_function(latest_features_transformed)
+            prediction = self.ml_model.predict(latest_features_scaled)[0]
+            decision_score = self.ml_model.decision_function(latest_features_scaled)
             confidence = abs(decision_score[0])
         except Exception as e:
             cycle_record["decision"] = "SKIP"
@@ -553,8 +679,8 @@ class DerivTradingBot:
         trade_signal = "CALL" if prediction == 1 else "PUT"
         cycle_record["decision"] = trade_signal
 
-        if confidence < self.confidence_threshold:
-            cycle_record["note"] = f"Confidence {confidence:.2f} below threshold {self.confidence_threshold}; trade skipped."
+        if confidence < MIN_CONFIDENCE_THRESHOLD:
+            cycle_record["note"] = f"Confidence {confidence:.2f} below threshold; trade skipped."
             self.trade_history.append(cycle_record)
             self.logger.info(f"Skipping trade: low confidence ({confidence:.2f}).")
             return
@@ -566,6 +692,7 @@ class DerivTradingBot:
                 self.logger.info(f"Skipping trade: confidence {confidence:.2f} not high enough to switch from current position.")
                 return
 
+        # --- Sophisticated S/R Check ---
         try:
             sr_levels = sophisticated_support_resistance(df_latest, window=10, tolerance=0.002)
             if sr_levels is None:
@@ -577,19 +704,23 @@ class DerivTradingBot:
             return
 
         current_price = df_latest["close"].iloc[-1]
+        # Example S/R decision logic:
         if trade_signal == "CALL":
+            # For a BUY, price should be near support.
             if current_price > sr_support * (1 + 0.005):
-                cycle_record["note"] = f"Trade signal {trade_signal} rejected: price {current_price} not near support {sr_support}"
+                cycle_record["note"] = f"Trade signal {trade_signal} rejected: price {current_price} is not near support {sr_support}"
                 self.trade_history.append(cycle_record)
                 self.logger.info(cycle_record["note"])
                 return
         elif trade_signal == "PUT":
+            # For a SELL, price should be near resistance.
             if current_price < sr_resistance * (1 - 0.005):
-                cycle_record["note"] = f"Trade signal {trade_signal} rejected: price {current_price} not near resistance {sr_resistance}"
+                cycle_record["note"] = f"Trade signal {trade_signal} rejected: price {current_price} is not near resistance {sr_resistance}"
                 self.trade_history.append(cycle_record)
                 self.logger.info(cycle_record["note"])
                 return
 
+        # Dynamic position sizing remains unchanged.
         try:
             current_atr = float(df_latest.iloc[-1]["atr"])
             current_price = float(df_latest.iloc[-1]["close"])
@@ -613,25 +744,34 @@ class DerivTradingBot:
                 self.logger.warning("Win rate below 50% in last 20 trades. Pausing trading for 30 minutes.")
                 await asyncio.sleep(1800)
 
+
+
+    # ------------------------------
+    # Place Trade: Execute the Trade via API
+    # ------------------------------
     async def get_account_currency(self):
         try:
             response = await self.api.send({"balance": 1})
             if "balance" in response:
-                self.logger.info(response)
+                # Default to USD if not found
+                self.logger.error(response)
+
                 return response["balance"].get("currency", "USD")
         except Exception as e:
             self.logger.error(f"Error fetching account currency: {e}")
-        return "USD"
+        return "USD"  # Fallback
 
     async def place_trade(self, prediction, confidence, stake):
         decision = "CALL" if prediction == 1 else "PUT"
         df_latest = await self.fetch_historical_data(count=100, granularity=60)
         if df_latest is None or df_latest.empty:
-            self.logger.error("Unable to fetch latest data for trade decision.")
+            self.logger.error(
+                "Unable to fetch latest data for trade decision.")
             return
         df_latest = self.preprocess_data(df_latest)
         if df_latest is None or df_latest.empty:
-            self.logger.error("Error preprocessing latest data for trade decision.")
+            self.logger.error(
+                "Error preprocessing latest data for trade decision.")
             return
         latest_features = df_latest.iloc[-1:][FEATURE_COLS]
         if self.scaler is None:
@@ -639,14 +779,15 @@ class DerivTradingBot:
             return
         try:
             latest_features_scaled = self.scaler.transform(latest_features)
-            latest_features_transformed = self.transform_features(latest_features_scaled)
         except Exception as e:
-            self.logger.error(f"Error scaling/transforming features: {e}")
+            self.logger.error(f"Error scaling features: {e}")
             return
-        self.last_trade_state = latest_features_transformed
+        self.last_trade_state = latest_features_scaled
         self.last_trade_action = prediction
         currency = await self.get_account_currency()
-        self.logger.info(f"Placing {decision} trade with {stake:.2f} USDT stake (Confidence: {confidence:.2f}).")
+
+        self.logger.info(
+            f"Placing {decision} trade with {stake:.2f} USDT stake (Confidence: {confidence:.2f}).")
         proposal_req = {
             "amount": stake,
             "basis": "stake",
@@ -658,6 +799,7 @@ class DerivTradingBot:
         }
         proposal_response = await self.api.proposal(proposal_req)
         logger.info(f"Raw API response for account currency: {proposal_response}")
+
         if not proposal_response or "proposal" not in proposal_response:
             self.logger.error("Trade proposal failed.")
             return
@@ -671,56 +813,20 @@ class DerivTradingBot:
             self.logger.error("Trade execution failed.")
             return
         contract_id = buy_response.get("contract_id")
-        # Start monitoring the trade for stop-loss and trailing stop conditions.
-        asyncio.create_task(self.monitor_trade_for_stop_loss(contract_id, stake))
         asyncio.create_task(self.check_contract_result(contract_id))
 
-    async def monitor_trade_for_stop_loss(self, contract_id, stake):
-        """
-        Monitor an open contract for early exit conditions.
-        If the profit falls below a stop-loss threshold or a trailing stop is triggered,
-        attempt an early sell.
-        """
-        # Set thresholds relative to stake (adjust these as needed)
-        stop_loss_threshold = -0.3 * stake
-        trailing_trigger = 0.5 * stake
-        trailing_offset = 0.1 * stake
-        current_trailing_stop = None
-        self.logger.info(f"Started monitoring contract {contract_id} for stop-loss/trailing stop conditions.")
-        while True:
-            req = {"proposal_open_contract": contract_id}
-            result = await self.api.send(req)
-            if "proposal_open_contract" not in result:
-                self.logger.info(f"Contract {contract_id} no longer available for monitoring.")
-                break
-            current_profit = float(result["proposal_open_contract"].get("profit", 0.0))
-            # Check stop-loss
-            if current_profit <= stop_loss_threshold:
-                self.logger.info(f"Stop-loss triggered for contract {contract_id} at profit {current_profit:.2f}. Attempting early sell.")
-                sell_req = {"sell": contract_id, "price": stake}
-                sell_response = await self.api.sell(sell_req)
-                self.logger.info(f"Early sell response: {sell_response}")
-                break
-            # Check trailing stop conditions if profit is above trigger
-            if current_profit >= trailing_trigger:
-                if current_trailing_stop is None or (current_profit - trailing_offset) > current_trailing_stop:
-                    current_trailing_stop = current_profit - trailing_offset
-                    self.logger.info(f"Updated trailing stop for contract {contract_id} to {current_trailing_stop:.2f}")
-                elif current_profit < current_trailing_stop:
-                    self.logger.info(f"Trailing stop triggered for contract {contract_id} at profit {current_profit:.2f}. Attempting early sell.")
-                    sell_req = {"sell": contract_id, "price": stake}
-                    sell_response = await self.api.sell(sell_req)
-                    self.logger.info(f"Early sell response: {sell_response}")
-                    break
-            await asyncio.sleep(10)
-
+    # ------------------------------
+    # Check Contract Result: Post-Trade Evaluation
+    # ------------------------------
     async def check_contract_result(self, contract_id):
         await asyncio.sleep(self.contract_duration * 60 + 10)
         req = {"proposal_open_contract": contract_id}
         result = await self.api.send(req)
         if "proposal_open_contract" in result:
-            trade_profit = float(result["proposal_open_contract"].get("profit", 0.0))
-            self.logger.info(f"Contract {contract_id} settled. Profit: {trade_profit:.2f} USDT")
+            trade_profit = float(
+                result["proposal_open_contract"].get("profit", 0.0))
+            self.logger.info(
+                f"Contract {contract_id} settled. Profit: {trade_profit:.2f} USDT")
             self.cumulative_pnl += trade_profit
             if trade_profit < 0:
                 self.consecutive_loss_count += 1
@@ -730,10 +836,14 @@ class DerivTradingBot:
                 self.last_trade_record["profit"] = trade_profit
             if self.last_trade_state is not None and self.last_trade_action is not None:
                 new_label = self.last_trade_action if trade_profit >= 0 else 1 - self.last_trade_action
-                self.experience_buffer.append((self.last_trade_state, new_label))
+                self.experience_buffer.append(
+                    (self.last_trade_state, new_label))
                 self.last_trade_state = None
                 self.last_trade_action = None
 
+    # ------------------------------
+    # Trading Loop: Main Execution Loop
+    # ------------------------------
     async def trading_loop(self):
         self.loop = asyncio.get_running_loop()
         self.connect_api()
@@ -741,11 +851,13 @@ class DerivTradingBot:
         asyncio.create_task(self.training_loop())
         while True:
             if self.training_iterations < self.MIN_TRAINING_CYCLES:
-                self.logger.info("Model warming up. Waiting for sufficient training iterations before trading...")
+                self.logger.info(
+                    "Model warming up. Waiting for sufficient training iterations before trading...")
                 await asyncio.sleep(60)
                 continue
             if self.consecutive_loss_count >= 10:
-                self.logger.warning("Consecutive loss count exceeded threshold (>=10). Pausing trading for 1 hour.")
+                self.logger.warning(
+                    "Consecutive loss count exceeded threshold (>=10). Pausing trading for 1 hour.")
                 await asyncio.sleep(3600)
                 self.consecutive_loss_count = 0
                 continue
@@ -753,7 +865,8 @@ class DerivTradingBot:
                 self.logger.info("Trading disabled; idling...")
                 await asyncio.sleep(1)
                 continue
-            self.logger.info(f"Starting trade cycle #{self.cycle_count + 1} on {self.training_symbol}...")
+            self.logger.info(
+                f"Starting trade cycle #{self.cycle_count + 1} on {self.training_symbol}...")
             try:
                 await self.evaluate_and_trade()
             except Exception as e:
@@ -764,12 +877,14 @@ class DerivTradingBot:
                 df_latest = self.preprocess_data(df_latest)
                 if df_latest is not None and not df_latest.empty:
                     atr = float(df_latest.iloc[-1]["atr"])
-                    wait_time = 60 if atr / df_latest.iloc[-1]["close"] < self.vol_threshold else 900
+                    wait_time = 60 if atr / \
+                        df_latest.iloc[-1]["close"] < self.vol_threshold else 900
                 else:
                     wait_time = 60
             else:
                 wait_time = 60
-            self.logger.info(f"Waiting {wait_time/60:.1f} minutes before next trade.")
+            self.logger.info(
+                f"Waiting {wait_time/60:.1f} minutes before next trade.")
             await asyncio.sleep(wait_time)
 
     async def authorize_api(self):
@@ -777,7 +892,8 @@ class DerivTradingBot:
             auth_msg = {"authorize": self.api_token}
             auth_response = await self.api.send(auth_msg)
             if auth_response.get("error"):
-                self.logger.error(f"Authorization failed: {auth_response['error']}")
+                self.logger.error(
+                    f"Authorization failed: {auth_response['error']}")
                 raise Exception("Authorization failed")
             self.logger.info("API authorized successfully.")
             await self.update_balance()
@@ -792,9 +908,11 @@ class DerivTradingBot:
                 new_balance = float(balance_response["balance"]["balance"])
                 self.capital = new_balance
                 self.fixed_stake = self.capital * 0.01
-                self.logger.info(f"Updated balance: {self.capital:.2f} USDT; Fixed stake: {self.fixed_stake:.2f} USDT")
+                self.logger.info(
+                    f"Updated balance: {self.capital:.2f} USDT; Fixed stake: {self.fixed_stake:.2f} USDT")
             else:
-                self.logger.warning("Balance information not found in response.")
+                self.logger.warning(
+                    "Balance information not found in response.")
         except Exception as e:
             self.logger.error(f"Error updating balance: {e}")
             self.capital = 18.70
@@ -808,8 +926,10 @@ class DerivTradingBot:
                     "count": count,
                     "end": "latest",
                     "granularity": granularity
+                    # Do not specify "style", so the API returns its default (history data)
                 }
                 response = await self.api.send(req)
+                # Check if the response contains the 'history' key with 'prices' and 'times'
                 if ("history" in response and 
                     "prices" in response["history"] and 
                     "times" in response["history"]):
@@ -831,6 +951,8 @@ class DerivTradingBot:
             self.logger.error(f"Error fetching historical data: {e}")
             return None
 
+
+
     def connect_api(self):
         try:
             self.logger.info("Connecting to Deriv API...")
@@ -839,32 +961,13 @@ class DerivTradingBot:
             self.logger.error(f"Error connecting to API: {e}")
             raise
 
-    def backtest(self, historical_data):
-        """
-        A basic backtesting routine that preprocesses historical data, runs predictions,
-        and calculates hypothetical PnL. (This is for offline evaluation.)
-        """
-        df = self.preprocess_data(historical_data.copy())
-        if df is None or df.empty:
-            self.logger.error("Backtesting data empty or error in preprocessing.")
-            return None
-        X = df[FEATURE_COLS]
-        y_true = df['direction']
-        X_scaled = StandardScaler().fit_transform(X)
-        X_transformed = self.transform_features(X_scaled)
-        try:
-            y_pred = self.ml_model.predict(X_transformed)
-            pnl = np.where(y_pred == y_true, 1, -1)
-            cumulative_pnl = np.cumsum(pnl)
-            self.logger.info(f"Backtest complete. Final cumulative PnL: {cumulative_pnl[-1]}")
-            return cumulative_pnl
-        except Exception as e:
-            self.logger.error(f"Error during backtesting: {e}")
-            return None
 
+# ------------------------------
 # Main Execution: Start Flask and Trading Bot
+# ------------------------------
 if __name__ == "__main__":
-    bot_instance = DerivTradingBot(app_id, api_token, training_symbol="frxEURUSD", contract_duration=30)
+    bot_instance = DerivTradingBot(
+        app_id, api_token, training_symbol="frxEURUSD", contract_duration=30)
 
     def run_flask():
         app.run(host="0.0.0.0", port=5000, use_reloader=False)
