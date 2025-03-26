@@ -475,13 +475,13 @@ class DerivTradingBot:
             computed_vol_ratio = avg_atr / avg_price if avg_price != 0 else 0.01
             if self.training_symbol.lower().startswith("frx"):
                 self.vol_threshold = max(0.008, min(0.015, computed_vol_ratio * 1.0))
-                self.confidence_threshold = 0.55
+                self.confidence_threshold = 0.50
             elif self.training_symbol.upper() in ["BOOM1000", "CRASH1000"]:
                 self.vol_threshold = max(0.015, min(0.03, computed_vol_ratio * 1.5))
                 self.confidence_threshold = 0.45
             else:
                 self.vol_threshold = computed_vol_ratio * 1.0
-                self.confidence_threshold = 0.55
+                self.confidence_threshold = 0.50
             self.logger.info(f"Calibrated parameters for {self.training_symbol}: vol_threshold={self.vol_threshold:.3f}, confidence_threshold={self.confidence_threshold:.2f}")
         except Exception as e:
             self.logger.error(f"Error calibrating asset parameters: {e}")
