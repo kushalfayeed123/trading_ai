@@ -20,6 +20,7 @@ import nest_asyncio
 import threading
 import requests
 import os
+import joblib
 from dotenv import load_dotenv
 
 nest_asyncio.apply()
@@ -301,6 +302,40 @@ class DerivTradingBot:
             from sklearn.linear_model import PassiveAggressiveClassifier
             self.ml_model = PassiveAggressiveClassifier(max_iter=1000, tol=1e-3, C=1.0)
             self.model_initialized = True
+        self.load_persistence()
+            
+    def save_persistence(self):
+        try:
+            joblib.dump(self.ml_model, 'model.pkl')
+            if self.scaler is not None:
+                joblib.dump(self.scaler, 'scaler.pkl')
+            if self.use_advanced_model and hasattr(self, 'rbf_sampler'):
+                joblib.dump(self.rbf_sampler, 'rbf_sampler.pkl')
+            joblib.dump(self.training_iterations, 'training_iterations.pkl')
+            self.logger.info("Model, preprocessing objects, and training iteration count saved successfully.")
+        except Exception as e:
+            self.logger.error(f"Error saving persistence files: {e}")
+
+
+    def load_persistence(self):
+        try:
+            if os.path.exists('model.pkl'):
+                self.ml_model = joblib.load('model.pkl')
+                self.model_initialized = True
+                self.logger.info("Loaded persisted model.")
+            if os.path.exists('scaler.pkl'):
+                self.scaler = joblib.load('scaler.pkl')
+                self.logger.info("Loaded persisted scaler.")
+            if self.use_advanced_model and os.path.exists('rbf_sampler.pkl'):
+                self.rbf_sampler = joblib.load('rbf_sampler.pkl')
+                self.logger.info("Loaded persisted RBFSampler.")
+            if os.path.exists('training_iterations.pkl'):
+                self.training_iterations = joblib.load('training_iterations.pkl')
+                self.logger.info(f"Loaded training iteration count: {self.training_iterations}")
+        except Exception as e:
+            self.logger.error(f"Error loading persistence files: {e}")
+
+
 
     def transform_features(self, X):
         if self.use_advanced_model:
@@ -451,6 +486,7 @@ class DerivTradingBot:
                             self.ml_model.partial_fit(X_train_transformed, y_train)
                         self.training_iterations += 1
                         self.logger.info(f"Training iteration: {self.training_iterations}")
+                        self.save_persistence()
                     except Exception as e:
                         self.logger.error(f"Error during model update: {e}")
             else:
@@ -465,7 +501,6 @@ class DerivTradingBot:
                     self.experience_buffer.clear()
                 except Exception as e:
                     self.logger.error(f"Error updating model with live experiences: {e}")
-
             await asyncio.sleep(self.retrain_freq)
 
     def calibrate_asset_parameters(self, df):
