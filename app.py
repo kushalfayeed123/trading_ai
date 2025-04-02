@@ -11,7 +11,7 @@ from ta.trend import ADXIndicator, MACD
 from ta.momentum import StochasticOscillator, RSIIndicator, ROCIndicator
 from sklearn.linear_model import SGDClassifier
 from sklearn.kernel_approximation import RBFSampler
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
 from deriv_api import DerivAPI  # Ensure you have the latest Deriv API package
 from datetime import datetime
 from flask import Flask, request, jsonify
@@ -35,9 +35,8 @@ notification_msg = ""
 
 # Global feature columns (feel free to add more as you experiment)
 FEATURE_COLS = [
-    'rsi', 'macd', 'macd_hist', 'bollinger_hband', 'bollinger_lband',
-    'atr', 'adx', 'ma_20', 'std_20', 'volatility_ratio', 'sentiment',
-    'stoch_k', 'stoch_d', 'rsi_diff', 'roc', 'ma_diff', 'regime'
+    'rsi', 'macd', 'bollinger_hband', 'bollinger_lband',
+    'atr', 'adx', 'roc', 'stoch_k', 'sentiment'
 ]
 
 def safe_indicator_output(ind_val, index):
@@ -295,8 +294,9 @@ class DerivTradingBot:
         # Advanced model using kernel approximation for non-linearity
         self.use_advanced_model = True
         if self.use_advanced_model:
-            self.rbf_sampler = RBFSampler(gamma=1, random_state=42)
-            self.ml_model = SGDClassifier(loss='hinge', alpha=0.001, max_iter=1000, tol=1e-3)
+            # Adjust gamma for a smoother kernel mapping and set an adaptive learning rate
+            self.rbf_sampler = RBFSampler(gamma=0.1, random_state=42)
+            self.ml_model = SGDClassifier(loss='hinge', alpha=0.001, learning_rate='optimal', max_iter=1000, tol=1e-3)
             self.model_initialized = False
         else:
             from sklearn.linear_model import PassiveAggressiveClassifier
@@ -411,16 +411,15 @@ class DerivTradingBot:
             macd_obj = MACD(close_series, fillna=True)
             macd_values = macd_obj.macd().to_numpy().ravel()
             df['macd'] = pd.Series(macd_values, index=df.index[-len(macd_values):])
-            macd_hist_values = macd_obj.macd_diff().to_numpy().ravel()
-            df['macd_hist'] = pd.Series(macd_hist_values, index=df.index[-len(macd_hist_values):])
+            # Compute MACD Signal for trend confirmation
+            macd_signal_values = macd_obj.macd_signal().to_numpy().ravel()
+            df['macd_signal'] = pd.Series(macd_signal_values, index=df.index[-len(macd_signal_values):])
             bb = ta.volatility.BollingerBands(close_series, fillna=True)
             df['bollinger_hband'] = pd.Series(bb.bollinger_hband().to_numpy().ravel(), index=df.index[-len(rsi_values):])
             df['bollinger_lband'] = pd.Series(bb.bollinger_lband().to_numpy().ravel(), index=df.index[-len(rsi_values):])
             stoch = StochasticOscillator(high_series, low_series, close_series, window=14, smooth_window=3, fillna=True)
             stoch_k = stoch.stoch().to_numpy().ravel()
-            stoch_d = stoch.stoch_signal().to_numpy().ravel()
             df['stoch_k'] = pd.Series(stoch_k, index=df.index[-len(stoch_k):])
-            df['stoch_d'] = pd.Series(stoch_d, index=df.index[-len(stoch_d):])
             rsi_diff = np.diff(rsi_values, prepend=rsi_values[0])
             df['rsi_diff'] = pd.Series(rsi_diff, index=df.index[-len(rsi_diff):])
             roc_values = ROCIndicator(close_series, window=12, fillna=True).roc().to_numpy().ravel()
@@ -428,8 +427,6 @@ class DerivTradingBot:
             df['ma_20'] = df['close'].rolling(window=20).mean()
             df['ma_50'] = df['close'].rolling(window=50).mean()
             df['ma_diff'] = df['ma_20'] - df['ma_50']
-            df['std_20'] = df['close'].rolling(window=20).std()
-            df['volatility_ratio'] = df['std_20'] / df['ma_20']
             atr_obj = ta.volatility.AverageTrueRange(high_series, low_series, close_series, window=14, fillna=True)
             atr_raw = atr_obj.average_true_range()
             atr_values = safe_indicator_output(atr_raw, df.index)
@@ -444,6 +441,11 @@ class DerivTradingBot:
             df['future_return'] = df['close'].shift(-1) - df['close']
             df['direction'] = np.where(df['future_return'] > (0.0001 * df['close']), 1,
                                     np.where(df['future_return'] < (-0.0001 * df['close']), 0, np.nan))
+            try:
+                feature_corr = df[FEATURE_COLS].corr()
+                logger.debug(f"Feature correlations: {feature_corr.to_dict()}")
+            except Exception as e:
+                logger.error(f"Error computing feature correlations: {e}")
             df.dropna(inplace=True)
             self.logger.info("Data preprocessing complete with enhanced features.")
             return df
@@ -472,7 +474,7 @@ class DerivTradingBot:
                     self.calibrate_asset_parameters(df_train)
                     X_train = df_train[FEATURE_COLS]
                     y_train = df_train['direction']
-                    scaler = StandardScaler()
+                    scaler = RobustScaler()
                     X_train_scaled = scaler.fit_transform(X_train)
                     self.scaler = scaler
                     X_train_transformed = self.transform_features(X_train_scaled)
@@ -587,6 +589,104 @@ class DerivTradingBot:
         cycle_record["confidence"] = confidence
         trade_signal = "CALL" if prediction == 1 else "PUT"
         cycle_record["decision"] = trade_signal
+        
+        # --- Additional Entry Filters ---
+        # Ensure sufficient historical data for comparing previous values
+        if len(df_latest) < 2:
+            cycle_record["note"] = "Trade skipped: insufficient data for crossover checks."
+            self.trade_history.append(cycle_record)
+            self.logger.info(cycle_record["note"])
+            return
+        adx_value = df_latest['adx'].iloc[-1]
+
+        if adx_value < 25:
+            # Dedicated Range-Bound Mode
+            cycle_record["note"] += " (Range-bound mode: ADX below 25) "
+            if trade_signal == "CALL":
+                if df_latest['close'].iloc[-1] > df_latest['bollinger_lband'].iloc[-1] * 1.01:
+                    cycle_record["note"] = "Trade skipped: Price not near lower Bollinger Band (range-bound mode)."
+                    self.trade_history.append(cycle_record)
+                    self.logger.info(cycle_record["note"])
+                    return
+                if df_latest['atr'].iloc[-1] <= df_latest['atr'].iloc[-2]:
+                    cycle_record["note"] = "Trade skipped: ATR not rising (range-bound mode)."
+                    self.trade_history.append(cycle_record)
+                    self.logger.info(cycle_record["note"])
+                    return
+            elif trade_signal == "PUT":
+                if df_latest['close'].iloc[-1] < df_latest['bollinger_hband'].iloc[-1] * 0.99:
+                    cycle_record["note"] = "Trade skipped: Price not near upper Bollinger Band (range-bound mode)."
+                    self.trade_history.append(cycle_record)
+                    self.logger.info(cycle_record["note"])
+                    return
+                if df_latest['atr'].iloc[-1] <= df_latest['atr'].iloc[-2]:
+                    cycle_record["note"] = "Trade skipped: ATR not rising (range-bound mode)."
+                    self.trade_history.append(cycle_record)
+                    self.logger.info(cycle_record["note"])
+                    return
+        else:
+            if trade_signal == "CALL":
+                
+                if df_latest['macd'].iloc[-1] < df_latest['macd_signal'].iloc[-1]:
+                    cycle_record["note"] = "Trade skipped: MACD not above signal line."
+                    self.trade_history.append(cycle_record)
+                    self.logger.info(cycle_record["note"])
+                    return
+            elif trade_signal == "PUT":
+                
+                if df_latest['macd'].iloc[-1] > df_latest['macd_signal'].iloc[-1]:
+                    cycle_record["note"] = "Trade skipped: MACD not below signal line for PUT."
+                    self.trade_history.append(cycle_record)
+                    self.logger.info(cycle_record["note"])
+                    return
+
+            # Confirm Momentum: RSI must be between 30 and 70; also check for a simple Stoch K crossover.
+            if not (30 <= df_latest['rsi'].iloc[-1] <= 70):
+                cycle_record["note"] = "Trade skipped: RSI not between 30 and 70."
+                self.trade_history.append(cycle_record)
+                self.logger.info(cycle_record["note"])
+                return
+            # Check for Stoch K crossover (comparing last two values)
+            if trade_signal == "CALL":
+                if df_latest['stoch_k'].iloc[-1] <= df_latest['stoch_k'].iloc[-2]:
+                    cycle_record["note"] = "Trade skipped: Stoch K not showing upward crossover."
+                    self.trade_history.append(cycle_record)
+                    self.logger.info(cycle_record["note"])
+                    return
+            elif trade_signal == "PUT":
+                if df_latest['stoch_k'].iloc[-1] >= df_latest['stoch_k'].iloc[-2]:
+                    cycle_record["note"] = "Trade skipped: Stoch K not showing downward crossover."
+                    self.trade_history.append(cycle_record)
+                    self.logger.info(cycle_record["note"])
+                    return
+
+        # Confirm Volatility Conditions:
+        # For CALL, price should be near the lower Bollinger Band and ATR should be rising.
+        if trade_signal == "CALL":
+            if df_latest['close'].iloc[-1] > df_latest['bollinger_lband'].iloc[-1] * 1.01:
+                cycle_record["note"] = "Trade skipped: Price not near lower Bollinger Band."
+                self.trade_history.append(cycle_record)
+                self.logger.info(cycle_record["note"])
+                return
+            if df_latest['atr'].iloc[-1] <= df_latest['atr'].iloc[-2]:
+                cycle_record["note"] = "Trade skipped: ATR not rising."
+                self.trade_history.append(cycle_record)
+                self.logger.info(cycle_record["note"])
+                return
+        # For PUT, price should be near the upper Bollinger Band and ATR rising.
+        elif trade_signal == "PUT":
+            if df_latest['close'].iloc[-1] < df_latest['bollinger_hband'].iloc[-1] * 0.99:
+                cycle_record["note"] = "Trade skipped: Price not near upper Bollinger Band."
+                self.trade_history.append(cycle_record)
+                self.logger.info(cycle_record["note"])
+                return
+            if df_latest['atr'].iloc[-1] <= df_latest['atr'].iloc[-2]:
+                cycle_record["note"] = "Trade skipped: ATR not rising."
+                self.trade_history.append(cycle_record)
+                self.logger.info(cycle_record["note"])
+                return
+        # --- End Additional Entry Filters ---
+
 
         if confidence < self.confidence_threshold:
             cycle_record["note"] = f"Confidence {confidence:.2f} below threshold {self.confidence_threshold}; trade skipped."
@@ -681,12 +781,16 @@ class DerivTradingBot:
         self.last_trade_state = latest_features_transformed
         self.last_trade_action = prediction
         currency = await self.get_account_currency()
+        # Record the current entry price and ATR for stop-loss calculations
+        self.last_entry_price = df_latest["close"].iloc[-1]
+        self.last_entry_atr = float(df_latest["atr"].iloc[-1])
+
         self.logger.info(f"Placing {decision} trade with {stake:.2f} USDT stake (Confidence: {confidence:.2f}).")
         proposal_req = {
             "amount": stake,
             "basis": "stake",
             "contract_type": decision,
-            "currency": currency,
+            "currency": currency,  
             "duration": self.contract_duration,
             "duration_unit": "m",
             "symbol": self.training_symbol
@@ -717,9 +821,18 @@ class DerivTradingBot:
         attempt an early sell.
         """
         # Set thresholds relative to stake (adjust these as needed)
-        stop_loss_threshold = -0.3 * stake
-        trailing_trigger = 0.5 * stake
+        # Calculate stop-loss threshold based on ATR.
+        # For CALL: stop-loss is triggered if profit falls below a loss equivalent to 1.5 x entry ATR.
+        # For PUT: stop-loss is triggered if profit exceeds a loss of 1.5 x entry ATR.
+        if self.last_trade_action == 1:  # CALL
+            stop_loss_threshold = -1.5 * self.last_entry_atr
+        else:  # PUT
+            stop_loss_threshold = 1.5 * self.last_entry_atr
+
+        # Set trailing stop parameters (adjust trailing_offset as needed)
+        trailing_trigger = 0.5 * stake  # can be fine-tuned further
         trailing_offset = 0.1 * stake
+
         current_trailing_stop = None
         self.logger.info(f"Started monitoring contract {contract_id} for stop-loss/trailing stop conditions.")
         while True:
@@ -885,7 +998,7 @@ class DerivTradingBot:
             return None
         X = df[FEATURE_COLS]
         y_true = df['direction']
-        X_scaled = StandardScaler().fit_transform(X)
+        X_scaled = RobustScaler().fit_transform(X)
         X_transformed = self.transform_features(X_scaled)
         try:
             y_pred = self.ml_model.predict(X_transformed)
