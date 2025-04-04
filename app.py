@@ -12,6 +12,7 @@ from ta.momentum import StochasticOscillator, RSIIndicator, ROCIndicator
 from sklearn.linear_model import SGDClassifier
 from sklearn.kernel_approximation import RBFSampler
 from sklearn.preprocessing import RobustScaler
+from sklearn.linear_model import PassiveAggressiveClassifier
 from deriv_api import DerivAPI  # Ensure you have the latest Deriv API package
 from datetime import datetime
 from flask import Flask, request, jsonify
@@ -292,16 +293,15 @@ class DerivTradingBot:
         self.last_trade_record = None
 
         # Advanced model using kernel approximation for non-linearity
-        self.use_advanced_model = True
+        self.use_advanced_model = False
         if self.use_advanced_model:
             # Adjust gamma for a smoother kernel mapping and set an adaptive learning rate
             self.rbf_sampler = RBFSampler(gamma=0.1, random_state=42)
             self.ml_model = SGDClassifier(loss='hinge', alpha=0.001, learning_rate='optimal', max_iter=1000, tol=1e-3)
             self.model_initialized = False
         else:
-            from sklearn.linear_model import PassiveAggressiveClassifier
             self.ml_model = PassiveAggressiveClassifier(max_iter=1000, tol=1e-3, C=1.0)
-            self.model_initialized = True
+            self.model_initialized = False
         self.load_persistence()
             
     def save_persistence(self):
