@@ -568,7 +568,8 @@ class DerivTradingBot:
                     await asyncio.sleep(self.retrain_freq)
                     continue
 
-                self.logger.info(f"Training iteration {self.training_iterations + 1}/{self.MIN_TRAINING_CYCLES if self.training_iterations < self.MIN_TRAINING_CYCLES else '∞'}")
+                safe_total = self.MIN_TRAINING_CYCLES if self.training_iterations < self.MIN_TRAINING_CYCLES else "inf"
+                self.logger.info(f"Training iteration {self.training_iterations + 1}/{safe_total}")
 
                 df_train = await self.fetch_historical_data(count=500, granularity=60)
                 if df_train is None or df_train.empty:
@@ -611,7 +612,7 @@ class DerivTradingBot:
 
                 self.training_iterations += 1
                 self.logger.info(f"Model updated. Training iterations: {self.training_iterations}")
-
+                self.save_persistence()
             except Exception as e:
                 self.logger.error(f"Error in training loop: {e}")
 
