@@ -93,7 +93,7 @@ def setup_logger(name: str, log_file: str, level=logging.DEBUG):
 logger = setup_logger("EnhancedTradingBot", "enhanced_trading_bot.log")
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 
 @app.route("/start", methods=["POST"])
