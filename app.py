@@ -558,63 +558,123 @@ class DerivTradingBot:
         except Exception as e:
             self.logger.error(f"Error adding additional features: {e}")
             return df
-
+        
     async def training_loop(self):
-        if self.training_symbol is None:
-            self.logger.warning("No training symbol set; skipping training.")
-            return
+        self.loop = asyncio.get_running_loop()
+        while True:
+            try:
+                if self.training_symbol is None:
+                    self.logger.warning("No training symbol set; skipping training.")
+                    await asyncio.sleep(self.retrain_freq)
+                    continue
 
-        self.logger.info(f"Training on {self.training_symbol}...")
-        df_train = await self.fetch_historical_data(count=500, granularity=60)
+                self.logger.info(f"Training iteration {self.training_iterations + 1}/{self.MIN_TRAINING_CYCLES if self.training_iterations < self.MIN_TRAINING_CYCLES else '∞'}")
 
-        if df_train is None or df_train.empty:
-            self.logger.warning("Training data fetch returned empty.")
-            return
+                df_train = await self.fetch_historical_data(count=500, granularity=60)
+                if df_train is None or df_train.empty:
+                    self.logger.warning("Training data fetch returned empty.")
+                    await asyncio.sleep(self.retrain_freq)
+                    continue
 
-        df_train = self.preprocess_data(df_train)
+                df_train = self.preprocess_data(df_train)
+                if df_train is None or df_train.empty:
+                    self.logger.warning("Preprocessed training data is empty.")
+                    await asyncio.sleep(self.retrain_freq)
+                    continue
 
-        if df_train is None or df_train.empty:
-            self.logger.warning("Preprocessed training data is empty.")
-            return
+                df_train = df_train[df_train['direction'].notna()]
+                if df_train.empty:
+                    self.logger.warning("All target labels are NaN; skipping model update.")
+                    await asyncio.sleep(self.retrain_freq)
+                    continue
 
-        # Filter out rows where the target is missing
-        df_train = df_train[df_train['direction'].notna()]
-        if df_train.empty:
-            self.logger.warning(
-                "All target labels are NaN; skipping model update.")
-            return
+                self.calibrate_asset_parameters(df_train)
 
-        self.calibrate_asset_parameters(df_train)
+                X_train = df_train[self.FEATURE_COLS]
+                y_train = df_train['direction']
 
-        X_train = df_train[self.FEATURE_COLS]
-        y_train = df_train['direction']
+                self.feature_names = X_train.columns.tolist()
+                joblib.dump(self.feature_names, 'feature_names.pkl')
 
-        # Save features used during training
-        self.feature_names = X_train.columns.tolist()
-        joblib.dump(self.feature_names, 'feature_names.pkl')
+                scaler = RobustScaler()
+                X_train_scaled = scaler.fit_transform(X_train)
+                self.scaler = scaler
+                X_train_transformed = self.transform_features(X_train_scaled)
 
-        # Fit or update the model
-        try:
-            scaler = RobustScaler()
-            X_train_scaled = scaler.fit_transform(X_train)
-            self.scaler = scaler
-            X_train_transformed = self.transform_features(X_train_scaled)
+                if not self.model_initialized:
+                    self.logger.info("Initializing model with partial_fit...")
+                    self.ml_model.partial_fit(X_train_transformed, y_train, classes=np.array([0, 1]))
+                    self.model_initialized = True
+                else:
+                    self.logger.info("Updating model with partial_fit...")
+                    self.ml_model.partial_fit(X_train_transformed, y_train)
 
-            if not self.model_initialized:
-                self.logger.info("Initializing model with partial_fit...")
-                self.ml_model.partial_fit(
-                    X_train_transformed, y_train, classes=np.array([0, 1]))
-                self.model_initialized = True
-            else:
-                self.logger.info(
-                    "Updating online model with new data using partial_fit on advanced features.")
-                self.ml_model.partial_fit(X_train_transformed, y_train)
+                self.training_iterations += 1
+                self.logger.info(f"Model updated. Training iterations: {self.training_iterations}")
 
-            self.training_iterations += 1
-            self.logger.info(
-                f"Model updated. Training iterations: {self.training_iterations}")
-        except Exception as e:
-            self.logger.error(f"Error during model update: {e}")
+            except Exception as e:
+                self.logger.error(f"Error in training loop: {e}")
+
+            await asyncio.sleep(self.retrain_freq)
+
+
+
+    # async def training_loop(self):
+    #     if self.training_symbol is None:
+    #         self.logger.warning("No training symbol set; skipping training.")
+    #         return
+
+    #     self.logger.info(f"Training on {self.training_symbol}...")
+    #     df_train = await self.fetch_historical_data(count=500, granularity=60)
+
+    #     if df_train is None or df_train.empty:
+    #         self.logger.warning("Training data fetch returned empty.")
+    #         return
+
+    #     df_train = self.preprocess_data(df_train)
+
+    #     if df_train is None or df_train.empty:
+    #         self.logger.warning("Preprocessed training data is empty.")
+    #         return
+
+    #     # Filter out rows where the target is missing
+    #     df_train = df_train[df_train['direction'].notna()]
+    #     if df_train.empty:
+    #         self.logger.warning(
+    #             "All target labels are NaN; skipping model update.")
+    #         return
+
+    #     self.calibrate_asset_parameters(df_train)
+
+    #     X_train = df_train[self.FEATURE_COLS]
+    #     y_train = df_train['direction']
+
+    #     # Save features used during training
+    #     self.feature_names = X_train.columns.tolist()
+    #     joblib.dump(self.feature_names, 'feature_names.pkl')
+
+    #     # Fit or update the model
+    #     try:
+    #         scaler = RobustScaler()
+    #         X_train_scaled = scaler.fit_transform(X_train)
+    #         self.scaler = scaler
+    #         X_train_transformed = self.transform_features(X_train_scaled)
+
+    #         if not self.model_initialized:
+    #             self.logger.info("Initializing model with partial_fit...")
+    #             self.ml_model.partial_fit(
+    #                 X_train_transformed, y_train, classes=np.array([0, 1]))
+    #             self.model_initialized = True
+    #         else:
+    #             self.logger.info(
+    #                 "Updating online model with new data using partial_fit on advanced features.")
+    #             self.ml_model.partial_fit(X_train_transformed, y_train)
+
+    #         self.training_iterations += 1
+    #         self.logger.info(
+    #             f"Model updated. Training iterations: {self.training_iterations}")
+    #     except Exception as e:
+    #         self.logger.error(f"Error during model update: {e}")
 
     def calibrate_asset_parameters(self, df):
         try:
@@ -878,11 +938,20 @@ class DerivTradingBot:
         self.loop = asyncio.get_running_loop()
         self.connect_api()
         await self.authorize_api()
+
+        # Start background training
         asyncio.create_task(self.training_loop())
+
+        # Wait for training warmup
+        while self.training_iterations < self.MIN_TRAINING_CYCLES:
+            self.logger.info(f"Waiting for model warmup ({self.training_iterations}/{self.MIN_TRAINING_CYCLES})...")
+            await asyncio.sleep(30)
+
+    # Proceed with trading cycles
         while True:
             if self.training_iterations < self.MIN_TRAINING_CYCLES:
                 self.logger.info(
-                    "Model warming up. Waiting for sufficient training iterations before trading...")
+                    f"Model warming up (iterations: {self.training_iterations}).")
                 await asyncio.sleep(60)
                 continue
             if self.consecutive_loss_count >= 10:
