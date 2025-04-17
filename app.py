@@ -23,6 +23,7 @@ import os
 import joblib
 from dotenv import load_dotenv
 
+
 nest_asyncio.apply()
 load_dotenv()  # load variables from .env file
 
@@ -522,7 +523,7 @@ class DerivTradingBot:
 
             # Target for training
             df['future_return'] = df['close'].shift(-1) - df['close']
-            threshold_pct = 0.0001
+            threshold_pct = 0.0005
             df['direction'] = np.where(df['future_return'] > df['close'] * threshold_pct, 1,
                                        np.where(df['future_return'] < -df['close'] * threshold_pct, 0, np.nan))
 
@@ -773,7 +774,7 @@ class DerivTradingBot:
         cycle_record["decision"] = trade_signal
         cycle_record["confidence"] = confidence
 
-        if confidence < 0.4:
+        if confidence < 0.55:
             cycle_record["note"] = f"Low confidence: {confidence:.2f}"
             self.trade_history.append(cycle_record)
             return
